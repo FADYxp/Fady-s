@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@theme {
+  --font-outfit: "Outfit", sans-serif;
+}
+@theme {
+  --font-poppins: "Poppins", sans-serif;
+}
+
+::selection {
+    background-color: #661794bd; /* لون الخلفية عند التحديد */
+  color: white;  
+}
+:root {
+  --font-sans: var(--font-outfit);
+}
+
+
+html { font-family: var(--font-outfit); 
+scroll-behavior: smooth;
+
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.outfit-font {
+  font-family: "Outfit";
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+.animate-gradient-x {
+  animation: gradient-x 6s ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes heartbeat {
+  0% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+  75% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.heart {
+  animation: heartbeat 2s infinite  ease-in-out;
+  -webkit-animation: heartbeat 2s infinite  ease-in-out;
+}
+
+
+.main-bgg{
+  
+background-image: url('./assets/pexels-jibarofoto-1587097.jpg');
+background-position: center;
+background-repeat: no-repeat;
+background-size: cover;
+  background-color: rgba(0, 0, 0, 0.512); 
+  background-blend-mode: multiply; 
+}
+
+
+
