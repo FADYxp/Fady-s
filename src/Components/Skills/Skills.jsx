@@ -62,7 +62,7 @@ const Skills = () => {
     <section
       ref={sectionRef}
       id="skills"
-      className="min-h-screen  text-white py-20 px-4 md:px-8 relative overflow-hidden flex items-center "
+      className="min-h-screen text-white py-12 md:py-20 px-4 md:px-8 relative overflow-hidden flex items-center"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -78,18 +78,18 @@ const Skills = () => {
           </div>
 
           {/* Scrollable Container for Skills */}
-          <div className="flex flex-wrap justify-center lg:justify-start gap-3 max-h-[50vh] overflow-y-auto pr-2 pb-4 scroll-smooth"
+          <div className="flex flex-wrap justify-center lg:justify-start gap-3 max-h-[40vh] overflow-y-auto pr-2 pb-4 scroll-smooth"
                style={{ scrollbarWidth: 'thin', scrollbarColor: '#a855f7 transparent' }}>
             {skillsData.map((skill, index) => {
               const isActive = activeIndex === index;
               
               return (
-                <motion.button
+                <motion.span
+                
                   key={skill.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 1.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.2, delay: (index % 15) * 0.03 }}
+                  transition={{ duration: .2,  ease: "easeInOut", delay: index * 0.05 }}
                   onClick={() => {
                     setActiveIndex(index);
                     setIsIntroPhase(false); // وقف الـ Intro لو داس على حاجة
@@ -98,7 +98,7 @@ const Skills = () => {
                     setActiveIndex(index);
                     setIsIntroPhase(false);
                   }}
-                  className={`relative flex items-center gap-3 px-4 py-2.5 rounded-full border transition-all duration-300 ${
+                  className={`relative flex items-center gap-3 px-4 py-2.5 rounded-full border cursor-crosshair transition-all duration-300 ${
                     isActive
                       ? "border-fuchsia-500/50 bg-fuchsia-500/10 text-fuchsia-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] scale-105"
                       : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
@@ -111,7 +111,7 @@ const Skills = () => {
                     className={`w-5 h-5 object-contain transition-all duration-300 ${isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]" : "opacity-70"}`} 
                   />
                   <span className="font-medium text-sm whitespace-nowrap">{skill.name}</span>
-                </motion.button>
+                </motion.span>
               );
             })}
           </div>
@@ -129,9 +129,9 @@ const Skills = () => {
               <motion.div
                 key={activeSkill.name}
                 // في مرحلة الـ Intro مش هنعمل Blur و Y-axis عشان مايبقاش مزعج للعين، مجرد Opacity خفيفة
-                initial={isIntroPhase ? { opacity: 0 } : { opacity: 0, y: 20, filter: "blur(8px)" }}
+                initial={isIntroPhase ? { opacity: 0 } : { opacity: 0, y: 200, filter: "blur(8px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={isIntroPhase ? { opacity: 0 } : { opacity: 0, y: -20, filter: "blur(8px)" }}
+                exit={isIntroPhase ? { opacity: 0 } : { opacity: 0, y: -200, filter: "blur(8px)" }}
                 transition={{ duration: isIntroPhase ? 0.05 : 0.3, ease: "easeInOut" }}
                 className="relative z-10 flex flex-col items-center text-center h-full justify-center"
               >

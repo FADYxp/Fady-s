@@ -80,7 +80,7 @@ export default function AboutSection() {
   return (
    <section
   ref={sectionRef}
-  className="max-w-5xl mx-auto px-6 pb-5 pt-10  transition-all duration-700"
+  className="max-w-5xl mx-auto px-6 py-12 md:py-20 transition-all duration-700"
   aria-label="About section"
 >
   <SectionHeader title="About Me" />

@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import GlitchText from "../GlitchText";
+import TextType from './../TextType';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -33,12 +34,18 @@ export default function Navbar() {
   }, [activeSection, displayedSection]);
 
   // Detect active section
-  useEffect(() => {
+ useEffect(() => {
     const sections = ["projects", "about", "skills", "services", "contact"];
 
     const handleScroll = () => {
+      // ✅ 1. لو الصفحة فوق خالص، ثبتها على "HI,"
+      if (window.scrollY < 100) { 
+        setActiveSection("HI,"); 
+        return; 
+      }
+
       let current = "";
-      const buffer = window.innerHeight * 0.3; // 👈 سماح 30% من ارتفاع الشاشة
+      const buffer = window.innerHeight * 0.3;
 
       sections.forEach((id) => {
         const section = document.getElementById(id);
@@ -51,10 +58,9 @@ export default function Navbar() {
         }
       });
 
-      // ✅ لو المستخدم قرب من نهاية الصفحة
-      const distanceFromBottom =
-        document.body.offsetHeight - (window.innerHeight + window.scrollY);
-      if (distanceFromBottom < window.innerHeight * 0.2) {
+      // ✅ 2. تأكد إننا مش في أول الصفحة قبل ما نحكم إننا في الـ contact
+      const distanceFromBottom = document.body.offsetHeight - (window.innerHeight + window.scrollY);
+      if (distanceFromBottom < window.innerHeight * 0.2 && window.scrollY > 500) {
         current = "contact";
       }
 
@@ -163,11 +169,9 @@ export default function Navbar() {
             </div>
           </NavLink>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex flex-1"></div>
-
+          
           {/* Section Name Display - Right Side */}
-          <div className="hidden md:flex items-center min-w-[150px] justify-end">
+          <div className=" flex items-center min-w-[150px] justify-end">
             <AnimatePresence>
               {showSectionName && (
                 <motion.div
@@ -178,51 +182,18 @@ export default function Navbar() {
                   transition={{ duration: 0.4 }}
                   className="text-right"
                 >
-                  <div className="text-lg font-bold text-fuchsia-300 drop-shadow-[0_0_8px_#a855f7] capitalize">
-                    {displayedSection}
+                  <div className="text-lg font-stretch-90% text-fuchsia-400/40  drop-shadow-[0_0_8px_#a855f7] capitalize">
+                  {displayedSection}  
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="text-white focus:outline-none">
-              {menuOpen ? <X size={26} /> : <Menu size={26} />}
-            </button>
-          </div>
+
         </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden bg-black/60 backdrop-blur-md mt-2 rounded-xl py-3"
-            >
-              {navLinks.map((link) => {
-                const active = isActiveLink(link);
-                return (
-                  <button
-                    key={link.label}
-                    onClick={() => handleNavClick(link.to, link.type)}
-                    className={`block w-full px-4 py-2 text-base text-center transition-all duration-200 ${
-                      active
-                        ? "text-fuchsia-300 font-semibold animate-pulse"
-                        : "text-white/80 hover:text-fuchsia-300"
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
+
       </nav>
     </header>
   );
