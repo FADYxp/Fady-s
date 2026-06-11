@@ -3,7 +3,7 @@ import emailjs from "@emailjs/browser";
 import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import SectionHeader from "../Header/Header";
-import { FaWhatsapp, FaLinkedin,  FaGoogle } from "react-icons/fa";
+import { WhatsappIcon, LinkedinIcon, GoogleIcon } from "../Icons/Icons";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -60,7 +60,7 @@ const Contact = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex justify-center  gap-6 mt-6 text-3xl"
+              className="flex justify-center  gap-6 mt-6"
             >
               {/* ✅ WhatsApp direct chat */}
               <motion.a
@@ -70,7 +70,7 @@ const Contact = () => {
                 whileHover={{ scale: 1.2 }}
                 className="text-green-500 hover:text-green-300 transition-all duration-300 drop-shadow-[0_0_10px_#00ff9d]"
               >
-                <FaWhatsapp />
+                <WhatsappIcon className="w-8 h-8" />
               </motion.a>
 
               {/* ✅ Gmail compose link */}
@@ -81,7 +81,7 @@ const Contact = () => {
                 whileHover={{ scale: 1.2 }}
                 className="text-pink-400 hover:text-pink-300 transition-all duration-300 drop-shadow-[0_0_10px_#ff0099]"
               >
-                <FaGoogle />
+                <GoogleIcon className="w-8 h-8" />
               </motion.a>
 
               {/* ✅ LinkedIn profile */}
@@ -92,7 +92,7 @@ const Contact = () => {
                 whileHover={{ scale: 1.2 }}
                 className="text-blue-400 hover:text-blue-300 transition-all duration-300 drop-shadow-[0_0_10px_#61ffff]"
               >
-                <FaLinkedin />
+                <LinkedinIcon className="w-8 h-8" />
               </motion.a>
             </motion.div>
           </div>

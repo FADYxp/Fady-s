@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaMapMarkerAlt, FaGoogle } from "react-icons/fa";
+import { GithubIcon2, LinkedinIcon2, EnvelopeIcon, WhatsappIcon, MapMarkerIcon, GoogleIcon } from "../Icons/Icons";
 
 const Footer = () => {
   return (
@@ -18,11 +18,11 @@ const Footer = () => {
         {/* Left side - Contact Info */}
         <div className="flex flex-col items-center md:items-start gap-2 text-gray-400 text-sm">
           <div className="flex items-center gap-2">
-            <FaMapMarkerAlt className="text-teal-400" />
+            <MapMarkerIcon className="text-teal-400 w-5 h-5" />
             <span>Alexandria, Egypt</span>
           </div>
           <div className="flex items-center gap-2">
-            <FaEnvelope className="text-pink-400" />
+            <EnvelopeIcon className="text-pink-400 w-5 h-5" />
             <a
               href="mailto:ffady354@gmail.com"
               className="hover:text-white transition-all duration-300"
@@ -31,7 +31,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="flex items-center gap-2">
-            <FaWhatsapp className="text-green-400" />
+            <WhatsappIcon className="text-green-400 w-5 h-5" />
             <a
               href="https://wa.me/201011620644"
               target="_blank"
@@ -44,7 +44,7 @@ const Footer = () => {
         </div>
 
         {/* Middle - Social Icons */}
-        <div className="flex gap-6 text-2xl">
+        <div className="flex gap-6">
           <motion.a
             href="https://github.com/fadyxp"
             target="_blank"
@@ -52,7 +52,7 @@ const Footer = () => {
             whileHover={{ scale: 1.2 }}
             className="text-gray-400 hover:text-white transition-all duration-500"
           >
-            <FaGithub />
+            <GithubIcon2 className="w-6 h-6" />
           </motion.a>
 
           <motion.a
@@ -62,7 +62,7 @@ const Footer = () => {
             whileHover={{ scale: 1.2 }}
             className="text-gray-400 hover:text-[#0A66C2] transition-all duration-500"
           >
-            <FaLinkedin />
+            <LinkedinIcon2 className="w-6 h-6" />
           </motion.a>
 
           <motion.a
@@ -72,7 +72,7 @@ const Footer = () => {
             whileHover={{ scale: 1.2 }}
             className="text-gray-400 hover:text-pink-400 transition-all duration-500"
           >
-            <FaGoogle />
+            <GoogleIcon className="w-6 h-6" />
           </motion.a>
 
           <motion.a
@@ -82,7 +82,7 @@ const Footer = () => {
             whileHover={{ scale: 1.2 }}
             className="text-gray-400 hover:text-green-400 transition-all duration-500"
           >
-            <FaWhatsapp />
+            <WhatsappIcon className="w-6 h-6" />
           </motion.a>
         </div>
 

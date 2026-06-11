@@ -8,6 +8,8 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+  const [displayedSection, setDisplayedSection] = useState("");
+  const [showSectionName, setShowSectionName] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -17,6 +19,18 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Show section name for 1 second when section changes (skip on first/home section)
+  useEffect(() => {
+    if (activeSection && activeSection !== displayedSection && activeSection !== "") {
+      setDisplayedSection(activeSection);
+      setShowSectionName(true);
+      const timer = setTimeout(() => {
+        setShowSectionName(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeSection, displayedSection]);
 
   // Detect active section
   useEffect(() => {
@@ -83,14 +97,7 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
-  const navLinks = [
-    { label: "Home", type: "home", to: "/" },
-    { label: "About", type: "anchor", to: "#about" },
-    { label: "Projects", type: "anchor", to: "#projects" },
-    { label: "Skills", type: "anchor", to: "#skills" },
-    { label: "Services", type: "anchor", to: "#services" },
-    { label: "Contact", type: "anchor", to: "#contact" },
-  ];
+  const navLinks = [];
 
   const isActiveLink = (link) => {
     if (link.type === "anchor") {
@@ -124,11 +131,14 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-[1s] ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-[1s]  ${
         scrolled
           ? "backdrop-blur-md shadow-md bg-gradient-to-r from-purple-900/20 via-fuchsia-700/10 to-transparent"
           : "bg-transparent"
       }`}
+      style={{
+        clipPath: "polygon(0 0, 100% 0, 100% 85%, 97% 90%, 100% 95%, 0 100%)",
+      }}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -154,27 +164,26 @@ export default function Navbar() {
           </NavLink>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex space-x-8">
-            {navLinks.map((link, i) => {
-              const active = isActiveLink(link);
-              return (
-                <motion.button
-                  key={link.label}
-                  custom={i}
-                  variants={linkVariants}
-                  initial="hidden"
-                  animate="visible"
-                  onClick={() => handleNavClick(link.to, link.type)}
-                  className={`relative px-1 py-1 text-sm font-medium transition-all cursor-pointer duration-400 ${
-                    active
-                      ? "text-fuchsia-300 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[1px] after:bg-fuchsia-400 after:shadow-[0_0_5px_#a855f7] animate-pulse"
-                      : "text-white/70 hover:text-fuchsia-300 hover:drop-shadow-[0_0_5px_#a855f7]"
-                  }`}
+          <div className="hidden md:flex flex-1"></div>
+
+          {/* Section Name Display - Right Side */}
+          <div className="hidden md:flex items-center min-w-[150px] justify-end">
+            <AnimatePresence>
+              {showSectionName && (
+                <motion.div
+                  key={displayedSection}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 30 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-right"
                 >
-                  {link.label}
-                </motion.button>
-              );
-            })}
+                  <div className="text-lg font-bold text-fuchsia-300 drop-shadow-[0_0_8px_#a855f7] capitalize">
+                    {displayedSection}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Mobile Menu Button */}
