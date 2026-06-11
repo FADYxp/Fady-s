@@ -1,16 +1,15 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { motion } from "framer-motion";
 import ProfileCard from "../ProfileCard";
 import avatar from "./../../assets/photo.jpg";
 import iconn from "./../../assets/code3.png";
 import TextType from "../TextType";
-import AboutSection from "../About/AboutBrief";
 import Contact from "../Contact/Contact";
-import MiniSkillsSection from "../Skills/Search";
-import Services from "../Services/Services";
 import PageLoader from "../PageLoader/PageLoader";
-const LogoSlider = React.lazy(() => import("../LogoSlider/LogoSlider"));
 const Projects = React.lazy(() => import("../Projects/Projects"));
+const AboutSection = React.lazy(() => import("../About/AboutBrief"));
+const Skills = React.lazy(() => import("../Skills/Skills"));
+const Services = React.lazy(() => import("../Services/Services"));
 
 function Home() {
   const x = (id) => {
@@ -125,17 +124,25 @@ function Home() {
         {/* Scroll Content Section */}
 
         <div id="about" className="  ">
-          <AboutSection />
-          <LogoSlider />
+          <Suspense fallback={<div className="h-screen" />}>
+            <AboutSection />
+          </Suspense>
+ 
         </div>
 
         <div id="projects">
-          <Projects />
+          <Suspense fallback={<div className="h-screen" />}>
+            <Projects />
+          </Suspense>
         </div>
-        <div id="skills">
-          <MiniSkillsSection />
+        <div id="skills" className="">
+          <Suspense fallback={<div className="h-screen" />}>
+            <Skills />
+          </Suspense>
         </div>
-        <Services />
+        <Suspense fallback={<div className="h-96" />}>
+          <Services />
+        </Suspense>
         <div id="contact" className="">
           <Contact />
         </div>

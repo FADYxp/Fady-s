@@ -3,7 +3,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./Components/Home/Home";
 import Layout from "./Components/Layout/Layout";
 import Contact from "./Components/Contact/Contact";
-import TestMySkills from "./Components/Skills/TestMySkills";
 
 function App() {
   const router = createBrowserRouter([
@@ -19,7 +18,6 @@ function App() {
           path: "home",
           element: <Home />,
         },
-        { path: "skills", element: <TestMySkills /> },
       ],
     },
   ]);

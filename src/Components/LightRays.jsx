@@ -55,6 +55,7 @@ const LightRays = ({
   const cleanupFunctionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   const observerRef = useRef(null);
+  const mouseThrottleRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -231,11 +232,13 @@ void main() {
       const program = new Program(gl, { vertex: vert, fragment: frag, uniforms });
       const mesh = new Mesh(gl, { geometry, program });
       meshRef.current = mesh;
-
+      
+      let resizeThrottleTimeout = null;
       const updatePlacement = () => {
         if (!containerRef.current || !renderer) return;
 
-        renderer.dpr = Math.min(window.devicePixelRatio, 2);
+        // Limit DPR to 1 for better performance
+        renderer.dpr = 1;
 
         const { clientWidth: wCSS, clientHeight: hCSS } = containerRef.current;
         renderer.setSize(wCSS, hCSS);
@@ -249,6 +252,14 @@ void main() {
         const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
         uniforms.rayPos.value = anchor;
         uniforms.rayDir.value = dir;
+      };
+      
+      const throttledResize = () => {
+        if (resizeThrottleTimeout) return;
+        resizeThrottleTimeout = setTimeout(() => {
+          updatePlacement();
+          resizeThrottleTimeout = null;
+        }, 250);
       };
 
       const loop = t => {
@@ -276,7 +287,7 @@ void main() {
         }
       };
 
-      window.addEventListener('resize', updatePlacement);
+      window.addEventListener('resize', throttledResize);
       updatePlacement();
       animationIdRef.current = requestAnimationFrame(loop);
 
@@ -286,7 +297,7 @@ void main() {
           animationIdRef.current = null;
         }
 
-        window.removeEventListener('resize', updatePlacement);
+        window.removeEventListener('resize', throttledResize);
 
         if (renderer) {
           try {
@@ -373,17 +384,26 @@ void main() {
   useEffect(() => {
     const handleMouseMove = e => {
       if (!containerRef.current || !rendererRef.current) return;
+      
+      // Throttle: update at most every 16ms (60fps)
+      if (mouseThrottleRef.current) return;
+      
+      mouseThrottleRef.current = true;
+      setTimeout(() => {
+        mouseThrottleRef.current = false;
+      }, 16);
+
       const rect = containerRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
-      mouseRef.current = { x, y };
+      mouseRef.current = { x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
     };
 
-    if (followMouse) {
-      window.addEventListener('mousemove', handleMouseMove);
+    if (followMouse && isVisible) {
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
       return () => window.removeEventListener('mousemove', handleMouseMove);
     }
-  }, [followMouse]);
+  }, [followMouse, isVisible]);
 
   return (
     <div

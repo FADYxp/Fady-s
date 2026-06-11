@@ -1,17 +1,17 @@
 import React from 'react'
 import LogoLoop from '../LogoLoop';
-import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss , SiRedux , SiJavascript , SiLinkedin , SiGit , SiGithub , SiCss3 , SiHtml5} from 'react-icons/si';
+import { ReactIcon, TypescriptIcon, NextIcon, JavascriptIcon, GithubIcon2, LinkedinIcon2, GitIcon } from '../Icons/Icons';
 
 function LogoSlider() {
 
 const techLogos = [
-  { node: <SiReact />, title: "React", href: "https://react.dev" },
-  { node: <SiTypescript />, title: "TypeScript", href: "https://www.typescriptlang.org" },
-  { node: <SiNextdotjs />, title: "Next.js", href: "https://nextjs.org" },
-  { node: <SiJavascript />, title: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
-  { node: <SiGithub />, title: "GitHub", href: "https://github.com/fadyxp" },
-  { node: <SiLinkedin />, title: "LinkedIn", href: "https://www.linkedin.com/in/fady-refaat-9b5294343" },
-  { node: <SiGit />, title: "Git", href: "https://git-scm.com/" },
+  { node: <ReactIcon className="w-10 h-10" />, title: "React", href: "https://react.dev" },
+  { node: <TypescriptIcon className="w-10 h-10" />, title: "TypeScript", href: "https://www.typescriptlang.org" },
+  { node: <NextIcon className="w-10 h-10" />, title: "Next.js", href: "https://nextjs.org" },
+  { node: <JavascriptIcon className="w-10 h-10" />, title: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+  { node: <GithubIcon2 className="w-10 h-10" />, title: "GitHub", href: "https://github.com/fadyxp" },
+  { node: <LinkedinIcon2 className="w-10 h-10" />, title: "LinkedIn", href: "https://www.linkedin.com/in/fady-refaat-9b5294343" },
+  { node: <GitIcon className="w-10 h-10" />, title: "Git", href: "https://git-scm.com/" },
 ];
 
 
