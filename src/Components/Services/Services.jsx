@@ -1,155 +1,148 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Code2, Palette, Rocket, Cpu, Wrench, Smartphone, Shield, Cloud } from "lucide-react";
+import React from "react";
+import { motion } from "framer-motion";
+import { Code2, Palette, Server, Zap, Kanban, Shield } from "lucide-react";
 import SectionHeader from "../Header/Header";
 
+// خريطة الألوان الأنيقة
+const colorMap = {
+  teal: { text: "text-teal-400", bgGlow: "group-hover:bg-teal-500/20", border: "group-hover:border-teal-500/50", bullet: "bg-teal-400" },
+  indigo: { text: "text-indigo-400", bgGlow: "group-hover:bg-indigo-500/20", border: "group-hover:border-indigo-500/50", bullet: "bg-indigo-400" },
+  pink: { text: "text-pink-400", bgGlow: "group-hover:bg-pink-500/20", border: "group-hover:border-pink-500/50", bullet: "bg-pink-400" },
+  amber: { text: "text-amber-400", bgGlow: "group-hover:bg-amber-500/20", border: "group-hover:border-amber-500/50", bullet: "bg-amber-400" },
+  blue: { text: "text-blue-400", bgGlow: "group-hover:bg-blue-500/20", border: "group-hover:border-blue-500/50", bullet: "bg-blue-400" },
+  green: { text: "text-green-400", bgGlow: "group-hover:bg-green-500/20", border: "group-hover:border-green-500/50", bullet: "bg-green-400" },
+};
+
+// الداتا مع قيم "النعكشة" الثابتة لكل كارت عشان تفضل شكلها حلو دايماً
 const services = [
-  {
-    icon: <Code2 size={36} className="text-teal-300" />,
-    title: "Frontend Development",
-    desc: "Building responsive, modern, and interactive web interfaces using React, Next.js, and Tailwind CSS.",
-    details:
-      "I specialize in developing dynamic, high-performance user interfaces with smooth animations and scalable code. I focus on clean architecture and modular design to ensure long-term maintainability.",
+  { 
+    icon: <Code2 size={28} />, 
+    title: "Frontend Engineering", 
+    color: "teal", 
+    desc: "Building pixel-perfect, interactive web applications.", 
+    details: ["React & Next.js Architecture", "Tailwind CSS Styling", "State Management", "GSAP Animations"],
+    scatter: { rotate: -4, x: -10, y: 15 }
   },
-  {
-    icon: <Palette size={36} className="text-pink-300" />,
-    title: "UI / UX Implementation",
-    desc: "Transforming beautiful designs into pixel-perfect interfaces with smooth animations and usability focus.",
-    details:
-      "I take Figma or Adobe XD designs and bring them to life with precision — ensuring alignment, spacing, color consistency, and user flow remain flawless.",
+  { 
+    icon: <Server size={28} />, 
+    title: "Backend & APIs", 
+    color: "indigo", 
+    desc: "Developing robust and secure server-side logic.", 
+    details: ["RESTful API Development", "Node.js Environment", "Database Integration", "Secure Auth"],
+    scatter: { rotate: 3, x: 10, y: -10 }
   },
-  {
-    icon: <Rocket size={36} className="text-fuchsia-400" />,
-    title: "Performance Optimization",
-    desc: "Improving loading speed, SEO, and runtime efficiency for a seamless user experience.",
-    details:
-      "From code-splitting to image optimization and lazy-loading, I apply best practices to make websites load faster and rank better.",
+  { 
+    icon: <Palette size={28} />, 
+    title: "UI / UX Implementation", 
+    color: "pink", 
+    desc: "Translating designs into flawless, responsive code.", 
+    details: ["Figma to Code", "Micro-interactions", "Mobile-First", "Accessibility (a11y)"],
+    scatter: { rotate: -2, x: 5, y: 20 }
   },
-  {
-    icon: <Cpu size={36} className="text-teal-400" />,
-    title: "API Integration",
-    desc: "Connecting frontend applications with RESTful APIs and dynamic backend data.",
-    details:
-      "I integrate complex APIs securely, handle loading states gracefully, and ensure smooth data fetching with error handling and caching.",
+  { 
+    icon: <Zap size={28} />, 
+    title: "Performance & SEO", 
+    color: "amber", 
+    desc: "Optimizing for maximum speed and search visibility.", 
+    details: ["Core Web Vitals", "Lazy Loading & Caching", "Technical SEO Audits", "Asset Minification"],
+    scatter: { rotate: 5, x: -15, y: -5 }
   },
-  {
-    icon: <Wrench size={36} className="text-amber-300" />,
-    title: "Maintenance & Support",
-    desc: "Ensuring long-term stability and updates for your web apps.",
-    details:
-      "I help monitor performance, apply security patches, and continuously improve the UX with feedback-driven updates.",
+  { 
+    icon: <Kanban size={28} />, 
+    title: "Agile & Scrum Workflow", 
+    color: "blue", 
+    desc: "Orchestrating workflows and ensuring team alignment.", 
+    details: ["Sprint Planning", "Jira Management", "Cross-functional Sync", "Agile Coaching"],
+    scatter: { rotate: -5, x: 15, y: 10 }
   },
-  {
-    icon: <Smartphone size={36} className="text-blue-300" />,
-    title: "Responsive Design",
-    desc: "Perfect look and performance across all screen sizes.",
-    details:
-      "I design mobile-first layouts and ensure your site looks amazing and functions seamlessly on phones, tablets, and desktops.",
-  },
-  {
-    icon: <Shield size={36} className="text-green-300" />,
-    title: "Web Security",
-    desc: "Protecting your website from vulnerabilities and unsafe practices.",
-    details:
-      "I apply security measures like input sanitization, HTTPS enforcement, and CORS handling to keep your web app safe.",
-  },
-  {
-    icon: <Cloud size={36} className="text-cyan-300" />,
-    title: "Hosting & Deployment",
-    desc: "Deploying apps efficiently with modern CI/CD pipelines.",
-    details:
-      "I handle deployment using Vercel, Netlify, or custom servers, ensuring zero downtime and easy scalability.",
+  { 
+    icon: <Shield size={28} />, 
+    title: "Maintenance & Security", 
+    color: "green", 
+    desc: "Ensuring long-term stability and protecting data.", 
+    details: ["Code Audits", "Bug Tracking & Fixing", "CI/CD Pipelines", "Data Encryption"],
+    scatter: { rotate: 4, x: -5, y: -15 }
   },
 ];
 
 export default function Services() {
-  const [expandedIndex, setExpandedIndex] = useState(null);
-
   return (
-    <section
-      id="services"
-      className="relative  py-12 md:py-20 px-6 md:px-10 text-gray-300 overflow-hidden"
-    >
-      
-      {/* ✨ Animated Background */}
- 
+    <section className="py-24 px-4 md:px-8 relative min-h-screen flex flex-col justify-center overflow-hidden">
+      {/* شبكة خلفية */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] z-0 pointer-events-none"></div>
 
-      {/* Section Header */}
-  <SectionHeader title={"Services"}/>
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
+        <SectionHeader 
+          title="My Expertise" 
+          subtitle="Comprehensive solutions covering the entire software development lifecycle." 
+        />
+        
+        {/* الحاوية - قللنا الجاب شوية عشان الكروت تبان متداخلة أكتر */}
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+          {services.map((s, i) => {
+            const colors = colorMap[s.color];
 
-      {/* Services Grid */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 1.5, ease: "easeInOut" }}
-        viewport={{ once: true }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto relative z-10"
-      >
-        {services.map((service, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.6,
-              delay: i * 0.1,
-              ease: "easeOut",
-            }}
-            viewport={{ once: true }}
-            className="relative group bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm 
-                       shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(168,85,247,0.3)]
-                       hover:border-fuchsia-400/40 transition-all duration-500"
-          >
-            <div className="flex flex-col items-center text-center gap-3">
+            return (
               <motion.div
-                whileHover={{ scale: 1.2, rotate: 10 }}
-                transition={{ type: "spring", stiffness: 200 }}
-                className="mb-2"
+                key={i}
+                // الحالة المبدئية: الكروت بتنزل متنعكشة
+                initial={{ opacity: 0, y: 50, rotate: 0 }}
+                whileInView={{ 
+                  opacity: 1, 
+                  y: s.scatter.y, 
+                  x: s.scatter.x, 
+                  rotate: s.scatter.rotate,
+                  zIndex: 10
+                }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: i * 0.1, type: "spring", bounce: 0.4 }}
+                
+                // حالة الـ Hover: الكارت بيتعدل، بيطلع قدام، وبيكبر سيكا
+                whileHover={{ 
+                  y: -15, 
+                  x: 0, 
+                  rotate: 0, 
+                  scale: 1.05,
+                  zIndex: 50, // يغطي على باقي الكروت
+                  transition: { type: "spring", stiffness: 400, damping: 25 }
+                }}
+                
+                // الكلاسات الأساسية للكارت
+                className={`group relative rounded-[2.5rem] p-8 bg-[#0a0a0a]/70 backdrop-blur-xl border border-white/10 transition-colors duration-500 cursor-crosshair flex flex-col h-full ${colors.border}`}
               >
-                {service.icon}
+                {/* إضاءة خلفية ناعمة بتنور لما الكارت يتعدل */}
+                <div className={`absolute inset-0 opacity-0 ${colors.bgGlow} transition-opacity duration-500 rounded-[2.5rem] pointer-events-none`} />
+
+                <div className="relative z-10">
+                  <div className={`${colors.text} mb-6 bg-white/5 w-14 h-14 rounded-2xl flex items-center justify-center border border-white/5 shadow-lg group-hover:bg-white/10 transition-colors duration-300`}>
+                    {s.icon}
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-white tracking-tight mb-3">
+                    {s.title}
+                  </h3>
+                  
+                  <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6 h-12">
+                    {s.desc}
+                  </p>
+
+                  {/* تفاصيل السيرفيس بتفضل موجودة بس بنقط شيك */}
+                  <div className="space-y-3 pt-6 border-t border-white/10">
+                    {s.details.map((detail, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <div className={`w-1.5 h-1.5 rounded-full ${colors.bullet} opacity-50 group-hover:opacity-100 group-hover:scale-150 transition-all duration-300`} />
+                        <span className="text-sm text-gray-400 group-hover:text-gray-200 transition-colors duration-300">
+                          {detail}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
-              <h3 className="text-lg font-semibold text-white drop-shadow-[0_0_5px_#a855f7]">
-                {service.title}
-              </h3>
-              <p className="text-white/70 text-sm">{service.desc}</p>
-
-              {/* Expand Button */}
-              <button
-                onClick={() =>
-                  setExpandedIndex(expandedIndex === i ? null : i)
-                }
-                className="mt-3 px-3 py-1.5 text-xs font-semibold text-teal-300 border border-teal-400/40 rounded-md hover:bg-teal-400/10 transition-all duration-300"
-              >
-                {expandedIndex === i ? "Show Less" : "Learn More"}
-              </button>
-
-              {/* Expanded Details */}
-<AnimatePresence>
-  {expandedIndex === i && (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 10 }}
-      transition={{ duration: 0.4 }}
-      className="absolute inset-0 bg-[#0b0118]/95 backdrop-blur-2xl flex items-center justify-center text-white/80 text-sm p-4 rounded-2xl border border-fuchsia-400/30 shadow-lg z-20"
-    >
-      <div className="max-w-xs text-center">
-        <p>{service.details}</p>
-        <button
-          onClick={() => setExpandedIndex(null)}
-          className="mt-4 px-3 py-1 text-xs font-semibold text-teal-300 border border-teal-400/40 rounded-md hover:bg-teal-400/10 transition-all duration-300"
-        >
-          Close
-        </button>
+            );
+          })}
+        </div>
       </div>
-    </motion.div>
-  )}
-</AnimatePresence>
-
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
     </section>
   );
 }
