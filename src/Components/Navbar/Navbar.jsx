@@ -14,6 +14,16 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // دالة بتدي اسم معبر لكل سيكشن، وبتدمج الهوم والاباوت مع بعض
+  const getSectionLabel = (sectionId) => {
+    if (sectionId === "HI," || sectionId === "about") return "CORE_PROFILE"; 
+    if (sectionId === "projects") return "WORK_LOGS";
+    if (sectionId === "skills") return "TECH_STACK";
+    if (sectionId === "services") return "OPS_CAPACITY";
+    if (sectionId === "contact") return "COMM_LINK";
+    return sectionId;
+  };
+
   // Scroll state
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 100);
@@ -21,20 +31,23 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Show section name for 1 second when section changes (skip on first/home section)
+  // Show section name for 2.5 seconds when section changes
   useEffect(() => {
-    if (activeSection && activeSection !== displayedSection && activeSection !== "") {
+    const mappedActive = getSectionLabel(activeSection);
+    const mappedDisplayed = getSectionLabel(displayedSection);
+
+    if (activeSection && mappedActive !== mappedDisplayed && activeSection !== "") {
       setDisplayedSection(activeSection);
       setShowSectionName(true);
       const timer = setTimeout(() => {
         setShowSectionName(false);
-      }, 1000);
+      }, 2500); // 2.5 ثانية عشان الديزاين يلحق يتشاف
       return () => clearTimeout(timer);
     }
   }, [activeSection, displayedSection]);
 
   // Detect active section
- useEffect(() => {
+  useEffect(() => {
     const sections = ["projects", "about", "skills", "services", "contact"];
 
     const handleScroll = () => {
@@ -148,6 +161,7 @@ export default function Navbar() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          
           {/* Logo */}
           <NavLink  to="/" className="flex items-center gap-3">
             <motion.div
@@ -169,31 +183,38 @@ export default function Navbar() {
             </div>
           </NavLink>
 
-          
-          {/* Section Name Display - Right Side */}
-          <div className=" flex items-center min-w-[150px] justify-end">
-            <AnimatePresence>
+          {/* Section Name Display - Right Side (Terminal Style) */}
+          <div className="flex items-center min-w-[200px] justify-end overflow-hidden py-2">
+            <AnimatePresence mode="wait">
               {showSectionName && (
                 <motion.div
-                  key={displayedSection}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 30 }}
-                  transition={{ duration: 0.4 }}
-                  className="text-right"
+                  key={getSectionLabel(displayedSection)}
+                  initial={{ opacity: 0, x: 30, clipPath: "inset(0% 100% 0% 0%)" }}
+                  animate={{ opacity: 1, x: 0, clipPath: "inset(0% 0% 0% 0%)" }}
+                  exit={{ opacity: 0, x: 20, filter: "blur(4px)" }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="flex flex-col items-end"
                 >
-                  <div className="text-lg font-stretch-90% text-fuchsia-400/40  drop-shadow-[0_0_8px_#a855f7] capitalize">
-                  {displayedSection}  
+                  {/* تلميح صغير فوق الكلمة */}
+                  <span className="text-[9px] md:text-[10px] text-fuchsia-400/60 font-mono tracking-[0.3em] mb-[-4px]">
+                    // LOC_TRACKER
+                  </span>
+                  
+                  {/* شاشة الـ Terminal */}
+                  <div className="flex items-center gap-2 border-r-2 border-fuchsia-500 pr-3 bg-gradient-to-r from-transparent to-fuchsia-500/10 py-1">
+                    <span className="text-fuchsia-500 animate-pulse font-mono font-bold text-lg leading-none">&gt;</span>
+                    <span className="text-sm md:text-base font-mono font-bold text-fuchsia-50 tracking-[0.2em] uppercase drop-shadow-[0_0_8px_rgba(217,70,239,0.9)]">
+                      {getSectionLabel(displayedSection)}
+                    </span>
+                    {/* مؤشر الكتابة اللي بينور ويطفي */}
+                    <span className="w-2 md:w-2.5 h-4 md:h-5 bg-fuchsia-400 animate-[pulse_1s_step-end_infinite]"></span>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-
         </div>
-
-
       </nav>
     </header>
   );

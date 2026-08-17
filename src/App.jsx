@@ -2,7 +2,6 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./Components/Home/Home";
 import Layout from "./Components/Layout/Layout";
-import Contact from "./Components/Contact/Contact";
 
 function App() {
   const router = createBrowserRouter([

@@ -1,255 +1,171 @@
 import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SectionHeader from '../Header/Header';
-
-function Tag({ label }) {
-  return (
-    <span className="inline-flex  items-center gap-2 px-3 py-1 rounded-full border border-black/8 text-xs font-medium bg-white/10 text-gray-300">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="opacity-80">
-        <path
-          d="M12 2v20M2 12h20"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      {label}
-    </span>
-  );
-}
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function AboutSection() {
-
   const sectionRef = useRef(null);
-  const textRef = useRef(null);
-  const cardRef = useRef(null);
- const badgeRef = useRef(null);
+  const glowRef = useRef(null);
+  const contentRef = useRef(null);
+  
+  const xTo = useRef(null);
+  const yTo = useRef(null);
+
   useEffect(() => {
+    xTo.current = gsap.quickTo(glowRef.current, "x", { duration: 0.4, ease: "power3" });
+    yTo.current = gsap.quickTo(glowRef.current, "y", { duration: 0.4, ease: "power3" });
+
     const ctx = gsap.context(() => {
-      // fade in section when it appears
-      gsap.from(sectionRef.current, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-        },
-        opacity: 0,
+      gsap.from(contentRef.current, {
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' },
         y: 60,
-        duration: .1,
-        ease: 'power1.out',
+        scale: 0.98,
+        opacity: 0,
+        duration: 1.4,
+        ease: 'expo.out',
       });
 
-      // text animation (staggered)
-      gsap.from(textRef.current.querySelectorAll('.stagger'), {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 75%',
-        },
+      gsap.from('.stagger-el', {
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
         y: 30,
         opacity: 0,
-        filter: 'blur(6px)',
-        duration: 1.2,
+        duration: 1,
+        stagger: 0.1,
         ease: 'power3.out',
-        stagger: 0.15,
       });
-
-      // card animation (blur + glow)
-      gsap.fromTo(
-        cardRef.current,
-        { opacity: 0, scale: 0.9, filter: 'blur(8px)' },
-        {
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-          },
-          opacity: 1,
-          scale: 1,
-          filter: 'blur(0px)',
-          duration: 1.3,
-          ease: 'power3.out',
-        }
-      );
-    });
+    }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  return (
-   <section
-  ref={sectionRef}
-  className="max-w-5xl mx-auto px-6 py-12 md:py-20 transition-all duration-700"
-  aria-label="About section"
->
-  <SectionHeader title="About Me" />
-
-  <div className="bg-fuchsia-400/10 backdrop-blur-md border border-black/10 rounded-2xl p-8 lg:p-12 shadow-lg grid grid-cols-1 lg:grid-cols-2 gap-8 items-center hover:shadow-[0_0_40px_6px_#584C8D] hover:bg-fuchsia-900/20 transition-all duration-1000">
+  const handleMouseMove = (e) => {
+    if (!sectionRef.current) return;
+    const rect = sectionRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
-    {/* LEFT: Text */}
-    <div className="order-2 lg:order-1" ref={textRef}>
-<div
-  ref={badgeRef}
-  className="inline-flex items-center gap-3 mb-4 stagger"
->
-  <span className="px-3 py-1 rounded-full text-sm font-light text-gray-800 dark:text-gray-200 border border-gray-400/20 bg-white/10 dark:bg-white/5 backdrop-blur-md shadow-sm">
-    Software-Engineer
-  </span>
+    xTo.current(x - 200); 
+    yTo.current(y - 200);
+  };
 
-  <span className="w-2 h-2 rounded-full bg-teal-300/50  backdrop-blur-md"></span>
+  const handleSmoothScroll = (event, id) => {
+    event.preventDefault();
+    const element = document.getElementById(id);
+    if (!element) return;
 
-</div>
+    const yOffset = -90;
+    const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  };
 
-
-<h2 className="stagger outfit-font text-3xl lg:text-4xl font-bold text-gray-800 dark:text-gray-100">
-  Hey — I’m Fady Refaat
-</h2>
-
-<p className="stagger mt-4 max-w-2xl text-gray-300/95  text-lg leading-relaxed">
-  I’m a Frontend Developer dedicated to crafting modern, responsive, and accessible web interfaces. 
-  My work focuses on clean design, smooth performance, and user-centered experiences that bring ideas to life with clarity and precision.
-</p>
-
-<p className="stagger mt-3 text-gray-300/95  text-base leading-relaxed">
-  I enjoy transforming concepts into interactive, scalable solutions — blending creativity with technical depth 
-  to deliver products that feel effortless to use and visually refined.
-</p>
-
-<p className="stagger mt-3 text-gray-300/95  text-base leading-relaxed">
-  My goal is to make every interface feel
-  <span className="heart font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent inline ml-2">
-    A∟iVe
-  </span>
-  — turning pixels into meaningful experiences.
-</p>
-
-
-<div className="stagger mt-8 flex flex-wrap gap-3">
-  {/* زرار About */}
-  <a
-    href="#projects"
-    className="relative inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium 
-               text-teal-100 
-               backdrop-blur-md bg-gradient-to-r from-[#0f172a]/50 to-[#134e4a]/50
-               hover:shadow-[0_0_20px_rgba(20,184,166,0.35)] 
-               hover:scale-[.95] transition-all duration-300 "
-  >
-    <span className="text-sm md:text-base">Explore More 👀</span>
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      className="opacity-80 transition-transform duration-300 group-hover:translate-x-1"
+  return (
+    <section
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      className="relative flex items-center justify-center overflow-hidden min-h-[90vh] w-full max-w-6xl m-auto cursor-crosshair rounded-[3rem]"
     >
-      <path
-        d="M5 12h14M13 5l7 7-7 7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      {/* السطح الشبكي للخلفية (Grid) */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] z-0"></div>
 
-    <span className="absolute inset-0 bg-gradient-to-r from-teal-400/10 to-pink-400/10 opacity-0 group-hover:opacity-100 blur-md transition-all duration-500"></span>
-  </a>
+      {/* The Tracking Glow */}
+      <div 
+        ref={glowRef}
+        className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-teal-500/40 via-emerald-500/20 to-purple-600/40 blur-[100px] pointer-events-none z-0 mix-blend-screen"
+        style={{ transform: 'translate(-100vw, -100vh)' }} 
+      ></div>
 
-  {/* زرار Contact */}
-  <a
-    href="#contact"
-    className="relative inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium 
-               text-white 
-               backdrop-blur-md bg-gradient-to-r from-purple-900/50 to-teal-800/50
-               shadow-[0_0_10px_rgba(147,51,234,0.2)] 
-               hover:shadow-[0_0_25px_rgba(147,51,234,0.4)]
-               hover:rotate-6 transition-all duration-300  "
-  >
-    <span className="text-sm md:text-base">Let’s Connect 💬</span>
+      {/* Static Ambient Background Lights */}
+      <div className="absolute top-10 right-10 w-[500px] h-[500px] bg-purple-800/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
+      <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-teal-800/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
 
-    <span className="absolute inset-0 bg-gradient-to-r from-purple-500/15 to-teal-400/15 opacity-0 group-hover:opacity-100 blur-md transition-all duration-500"></span>
-  </a>
-  
-</div>
-
-
-      <div className="stagger mt-6 text-sm   text-gray-500">
-        <span className="mr-3">Tech:</span>
-        <span className="inline-flex items-center gap-2">
-          <Tag label="React" /> <Tag label="Next.js" />
-        </span>
-      </div>
-    </div>
-
-{/* RIGHT: Illustration Card */}
-<div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-  <div
-    ref={cardRef}
-    className="w-full max-w-md rounded-xl p-6 bg-gradient-to-br from-white/10 to-white/5 border border-black/10  transition-all duration-700 hover:[box-shadow:inset_0_0_12px_rgba(0,0,0,0.9)] "
-  >
-    <div className="relative rounded-lg overflow-hidden bg-gradient-to-tr from-purple-800 via-indigo-700 to-teal-600 p-6">
-      <svg
-        viewBox="0 0 600 400"
-        className="w-full h-56"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-label="Abstract developer illustration"
+      {/* The Premium Glass Card */}
+      <div 
+        ref={contentRef}
+        className="relative z-10 w-full max-w-5xl mx-auto bg-black/20 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-20 shadow-[0_20px_60px_rgba(0,0,0,0.6)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
       >
-        <defs>
-          <linearGradient id="g1" x1="0" x2="1">
-            <stop offset="0%" stopColor="#6B21A8" />
-            <stop offset="100%" stopColor="#14B8A6" />
-          </linearGradient>
-        </defs>
+        <div className="flex flex-col items-center text-center">
+          
+          {/* Top Badge */}
+          <div className="stagger-el inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-teal-500/20 bg-teal-500/5 mb-10 hover:bg-teal-500/10 transition-colors backdrop-blur-md">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-60"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500 shadow-[0_0_8px_#2dd4bf]"></span>
+            </span>
+            <span className="text-[11px] font-mono text-teal-100 tracking-[0.2em] uppercase font-semibold">Available for Hire</span>
+          </div>
 
-        {/* الخلفية */}
-        <rect x="0" y="0" width="600" height="400" rx="16" fill="url(#g1)" opacity="0.95" />
+          {/* Main Title */}
+          <h2 className="stagger-el text-6xl md:text-8xl font-black text-white tracking-tighter leading-[1.05] mb-8">
+            Hi, I'm <br className="md:hidden" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-200 to-teal-400 bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_30px_rgba(45,212,191,0.2)]">
+              Fady Refaat
+            </span>
+          </h2>
 
-        {/* المستطيلات العلوية */}
-        <g transform="translate(40,30)">
-          <rect x="0" y="0" width="220" height="120" rx="10" fill="#0f172a" opacity="0.08" />
-          <rect x="20" y="18" width="180" height="12" rx="8" fill="#ffffff" opacity="0.12" />
-          <rect x="20" y="40" width="140" height="10" rx="6" fill="#ffffff" opacity="0.09" />
-        </g>
+          {/* Classic Serif Quote */}
+          <div className="stagger-el relative mb-12 px-6">
+            <span className="absolute -top-6 -left-2 text-6xl text-white/10 font-serif">"</span>
+            <h3 className="text-xl md:text-3xl text-gray-300 font-serif italic tracking-wide leading-relaxed">
+              Turning complex logic into elegant art,<br className="hidden md:block" /> and teams into orchestras.
+            </h3>
+            <span className="absolute -bottom-10 -right-2 text-6xl text-white/10 font-serif rotate-180">"</span>
+          </div>
 
-        {/* دائرة الصورة */}
-        <g transform="translate(300,80)">
-          <circle cx="80" cy="40" r="36" fill="#ffffff" opacity="0.12" />
-          <foreignObject x="44" y="4" width="72" height="72">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              alt="User"
-              style={{ borderRadius: "50%", opacity: "50%",  border: "2px solid rgba(255,255,255,0.4)" }}
-            />
-          </foreignObject>
-        </g>
+          {/* Sweetened Description مع دمج الباك إند والـ Scrum */}
+          <div className="stagger-el space-y-6 max-w-3xl text-gray-400 text-lg md:text-xl leading-relaxed mb-14 font-light">
+            <p>
+              I’m a Frontend Developer dedicated to building interfaces that don't just function, but feel truly <span className="text-white font-black tracking-widest drop-shadow-[0_0_12px_rgba(255,255,255,0.7)] mx-1">ALiVE</span>. But great digital experiences go beyond the UI.
+            </p>
+            <p className="text-base md:text-lg leading-loose">
+              Alongside crafting clean, scalable code, I bridge the gap between design and architecture—stepping in seamlessly to handle <span className="inline-flex items-center px-2 py-0.5 rounded text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 text-sm mx-1">Backend logic</span> with Node.js, Express, and databases when needed. Plus, as a <span className="inline-flex items-center px-3 py-1 rounded-md bg-white/5 border border-white/10 text-white font-medium text-sm mx-1">Scrum Master</span>, I orchestrate teamwork through <span className="inline-flex items-center px-2 py-0.5 rounded text-teal-300 bg-teal-500/10 border border-teal-500/20 text-sm mx-1">Agile</span>, keeping sprints locked on <span className="inline-flex items-center px-2 py-0.5 rounded text-blue-300 bg-blue-500/10 border border-blue-500/20 text-sm mx-1">Jira</span> and communication sharp on <span className="inline-flex items-center px-2 py-0.5 rounded text-purple-300 bg-purple-500/10 border border-purple-500/20 text-sm mx-1">Slack</span>.
+            </p>
+          </div>
 
-        {/* المستطيل السفلي */}
-        <g transform="translate(80,180)">
-          <rect x="0" y="0" width="430" height="160" rx="12" fill="#000" opacity="0.08" />
-          <rect x="18" y="14" width="394" height="96" rx="8" fill="#fff" opacity="0.06" />
-    <g transform="translate(28,24)" fill="#fff" opacity="0.6" fontFamily="Inter, Arial" fontSize="11">
-  <text x="0" y="14" fontWeight="600" opacity="0.7">Fady Refaat</text>
-  <text x="0" y="32" opacity="0.5">Web Developer</text>
-  <text x="0" y="50" opacity="0.4">B.Sc. in Computer Science & information managemnt system</text>
-  <text x="0" y="68" opacity="0.4">Egypt</text>
-</g>
+          {/* Action Buttons */}
+          <div className="stagger-el flex flex-col sm:flex-row items-center justify-center gap-4 w-full md:w-auto">
+            <a
+              href="#projects"
+              onClick={(event) => handleSmoothScroll(event, 'projects')}
+              className="w-full sm:w-auto relative group px-8 py-4 rounded-xl bg-teal-500 text-black font-extrabold text-sm tracking-widest uppercase overflow-hidden transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(45,212,191,0.3)] hover:shadow-[0_0_30px_rgba(45,212,191,0.5)]"
+            >
+              <span className="relative z-10">Explore Work</span>
+              <div className="absolute inset-0 h-full w-full bg-teal-400 scale-x-0 origin-right group-hover:scale-x-100 transition-transform duration-500 ease-out z-0"></div>
+            </a>
 
-        </g>
+            <a
+              href="#contact"
+              onClick={(event) => handleSmoothScroll(event, 'contact')}
+              className="w-full sm:w-auto group px-8 py-4 rounded-xl text-white font-medium text-sm tracking-widest uppercase border border-white/10 hover:border-teal-500/50 hover:bg-teal-500/5 transition-all backdrop-blur-sm"
+            >
+              Let's Connect <span className="inline-block transition-transform group-hover:translate-x-2 text-teal-500 ml-2">→</span>
+            </a>
+          </div>
 
-        {/* عناصر زخرفية */}
-        <circle cx="520" cy="44" r="6" fill="#fff" opacity="0.18" />
-        <circle cx="480" cy="120" r="4" fill="#fff" opacity="0.12" />
-      </svg>
-    </div>
-  </div>
-</div>
+        </div>
 
+        {/* Bottom Details */}
+        <div className="stagger-el mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-black/40 border border-white/5 backdrop-blur-md">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-gray-300 text-sm font-mono">Alexandria, Egypt</span>
+          </div>
+          
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 uppercase tracking-widest">Stack</span>
+              <span className="px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5 hover:text-teal-400 transition-colors">React / Next</span>
+              <span className="px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5 hover:text-emerald-400 transition-colors">Node / Express</span>
+            </div>
+            <div className="hidden md:block w-px h-6 bg-white/10"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 uppercase tracking-widest">Workflow</span>
+              <span className="px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5 hover:text-purple-400 transition-colors">Scrum Master</span>
+            </div>
+          </div>
+        </div>
 
-  </div>
-</section>
-
+      </div>
+    </section>
   );
 }
-
-

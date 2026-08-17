@@ -1,163 +1,179 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import skillsData from "./skillsData";
 import SectionHeader from './../Header/Header';
 
 const Skills = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [isIntroPhase, setIsIntroPhase] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(true); // حالة ظهور سهم الإرشاد
   const sectionRef = useRef(null);
-  const previousInViewRef = useRef(false);
-  const isInView = useInView(sectionRef, { amount: 0.3 });
 
   const activeSkill = skillsData[activeIndex] || null;
 
-  // Start intro phase ONLY when scrolling to the section (transition from false to true)
+  // Autoplay
   useEffect(() => {
-    if (isInView && !previousInViewRef.current && !hasStarted) {
-      setHasStarted(true);
-      setIsIntroPhase(true);
+    if (isHovered || skillsData.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % skillsData.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isHovered]);
+
+  // دالة لمراقبة السكرول عشان نخفي السهم لو اليوزر وصل للآخر
+  const handleScroll = (e) => {
+    const { scrollLeft, scrollWidth, clientWidth } = e.target;
+    // لو المسافة المتبقية أقل من 15 بيكسل، اخفي السهم
+    if (scrollLeft + clientWidth >= scrollWidth - 15) {
+      setShowScrollHint(false);
+    } else {
+      setShowScrollHint(true);
     }
-    previousInViewRef.current = isInView;
-  }, [isInView, hasStarted]);
-  useEffect(() => {
-    let interval;
-    let timeout;
-
-    if (!isIntroPhase) {
-      // 1. مرحلة البداية: اختيار عشوائي سريع جداً (كل 100 ملي ثانية)
-      interval = setInterval(() => {
-        setActiveIndex(Math.floor(Math.random() * skillsData.length));
-      }, 200);
-
-      // توقيف المرحلة دي بعد 6 ثواني وتثبيتها على أول مهارة
-      timeout = setTimeout(() => {
-        clearInterval(interval);
-        setIsIntroPhase(false);
-        setActiveIndex(0);
-      }, 3000);
-
-    } else if (isHovered && skillsData.length > 0) {
-      // 2. المرحلة العادية: التقليب الهادي بالترتيب كل 2.5 ثانية
-      interval = setInterval(() => {
-        setActiveIndex((prevIndex) => (prevIndex + 1) % skillsData.length);
-      }, 2500);
-    }
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [isIntroPhase, isHovered]);
-
-  // إيقاف الـ Intro لو اليوزر اتفاعل مع القسم
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    if (isIntroPhase) setIsIntroPhase(false); 
   };
 
   return (
     <section
       ref={sectionRef}
       id="skills"
-      className="min-h-screen text-white py-12 md:py-20 px-4 md:px-8 relative overflow-hidden flex items-center"
-      onMouseEnter={handleMouseEnter}
+      className="min-h-[100dvh] text-white py-8 lg:py-24 px-4 md:px-8 relative overflow-hidden flex items-center justify-center"
+      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Subtle Grid Background */}
+      {/* الخلفيات والإضاءات */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] z-0"></div>
+      <div className="absolute top-1/4 left-0 w-96 h-96 bg-teal-900/20 blur-[120px] rounded-full z-0 pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-purple-900/20 blur-[120px] rounded-full z-0 pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col lg:flex-row gap-12 lg:gap-20 h-full items-center">
+      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-16 items-center lg:items-stretch h-full">
         
-        {/* Left Column: Skill Cloud / Selection */}
-        <div className="flex-1 w-full">
-          <div className="mb-10 text-center lg:text-left">
-<SectionHeader title={"Tech"}  subtitle= {"A comprehensive overview of my technical stack. Hover or click any technology to view detailed insights."}/>
-
+        {/* العمود الأيسر: المهارات */}
+        <div className="flex-1 w-full flex flex-col justify-center ">
+          <div className="mb-6 lg:mb-12 text-center lg:text-left">
+            <SectionHeader 
+              title="Tech Stack"  
+              subtitle="A curated selection of the technologies I use to build scalable applications."
+            />
           </div>
 
-          {/* Scrollable Container for Skills */}
-          <div className="flex flex-wrap justify-center lg:justify-start gap-3 max-h-[40vh] overflow-y-auto pr-2 pb-4 scroll-smooth"
-               style={{ scrollbarWidth: 'thin', scrollbarColor: '#a855f7 transparent' }}>
-            {skillsData.map((skill, index) => {
-              const isActive = activeIndex === index;
-              
-              return (
-                <motion.span
+          {/* حاوية المهارات والسهم */}
+          <div className="relative w-full">
+            
+            {/* Grid سحري: صفين للموبايل، وFlex Wrap للديسكتوب */}
+            <div 
+              onScroll={handleScroll}
+              className="grid grid-rows-2 grid-flow-col auto-cols-max lg:flex lg:flex-wrap lg:grid-rows-none overflow-x-auto lg:overflow-visible gap-3 lg:gap-4 pb-4 lg:pb-0 w-full snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1"
+            >
+              {skillsData.map((skill, index) => {
+                const isActive = activeIndex === index;
                 
-                  key={skill.name}
-                  initial={{ opacity: 0, scale: 1.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: .2,  ease: "easeInOut", delay: index * 0.05 }}
-                  onClick={() => {
-                    setActiveIndex(index);
-                    setIsIntroPhase(false); // وقف الـ Intro لو داس على حاجة
-                  }}
-                  onMouseEnter={() => {
-                    setActiveIndex(index);
-                    setIsIntroPhase(false);
-                  }}
-                  className={`relative flex items-center gap-3 px-4 py-2.5 rounded-full border cursor-crosshair transition-all duration-300 ${
-                    isActive
-                      ? "border-fuchsia-500/50 bg-fuchsia-500/10 text-fuchsia-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] scale-105"
-                      : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-                  }`}
+                return (
+                  <motion.button
+                    key={skill.name}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    onClick={() => setActiveIndex(index)}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={`snap-start shrink-0 group relative flex items-center gap-2 lg:gap-3 px-4 lg:px-5 py-2 lg:py-3 rounded-xl lg:rounded-2xl border transition-all duration-500 ease-out ${
+                      isActive
+                        ? "border-teal-500/40 bg-teal-500/10 shadow-[0_0_20px_rgba(45,212,191,0.15)] scale-[1.02]"
+                        : "border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/5"
+                    }`}
+                  >
+                    <img 
+                      src={skill.icon} 
+                      alt={skill.name} 
+                      loading="lazy"
+                      className={`w-5 h-5 lg:w-6 lg:h-6 object-contain transition-all duration-500 ${
+                        isActive ? "scale-110 drop-shadow-[0_0_10px_rgba(45,212,191,0.5)] grayscale-0" : "grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100"
+                      }`} 
+                    />
+                    <span className={`font-medium tracking-wide text-xs lg:text-sm transition-colors duration-300 whitespace-nowrap ${
+                      isActive ? "text-teal-300" : "text-gray-400 group-hover:text-gray-200"
+                    }`}>
+                      {skill.name}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* مؤشر السحب (السهم) - بيظهر في الموبايل بس ويختفي لما توصل للآخر */}
+            <AnimatePresence>
+              {showScrollHint && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  // تدريج لوني (Gradient) عشان الكروت تدوب تحته بشياكة
+                  className="absolute right-0 top-0 bottom-4 w-20 bg-gradient-to-l from-[#09090b] via-[#09090b]/60 to-transparent pointer-events-none flex items-center justify-end pr-1 lg:hidden"
                 >
-                  <img 
-                    src={skill.icon} 
-                    alt={skill.name} 
-                    loading="lazy"
-                    className={`w-5 h-5 object-contain transition-all duration-300 ${isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]" : "opacity-70"}`} 
-                  />
-                  <span className="font-medium text-sm whitespace-nowrap">{skill.name}</span>
-                </motion.span>
-              );
-            })}
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }} // حركة نبض يمين وشمال
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  >
+                    {/* أيقونة سهم أنيقة بـ SVG */}
+                    <svg className="w-6 h-6 text-teal-400 opacity-80 drop-shadow-[0_0_8px_rgba(45,212,191,0.6)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
           </div>
         </div>
 
-        {/* Right Column: Dynamic Focus Panel */}
-        <div className="w-full lg:w-[450px] h-[400px] lg:h-[500px] shrink-0 bg-white/[0.02] border border-white/10 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden flex flex-col justify-center shadow-2xl">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-fuchsia-500/20 blur-[100px] rounded-full pointer-events-none"></div>
+        {/* الكارت الزجاجي */}
+        <div className="w-full lg:w-[480px] shrink-0 min-h-[280px] lg:min-h-[400px] flex items-center relative group perspective-1000 mt-2 lg:mt-0">
+          <div className="w-full h-full relative z-10 bg-black/40 border border-white/10 backdrop-blur-2xl rounded-3xl lg:rounded-[2rem] p-6 lg:p-10 shadow-2xl transition-transform duration-700 hover:border-teal-500/30 overflow-hidden flex flex-col justify-center">
+            
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-teal-500/20 to-purple-600/20 blur-[80px] rounded-full pointer-events-none transition-opacity duration-500 opacity-50 group-hover:opacity-100"></div>
 
-          {/* استخدمنا Undefined في الـ mode لو إحنا في مرحلة الـ Intro 
-            عشان الأنيميشن ما يعطلش ويستنى بعضه، ويقلب بسرعة الصاروخ
-          */}
-          <AnimatePresence mode={isIntroPhase ? undefined : "wait"}>
-            {activeSkill && (
-              <motion.div
-                key={activeSkill.name}
-                // في مرحلة الـ Intro مش هنعمل Blur و Y-axis عشان مايبقاش مزعج للعين، مجرد Opacity خفيفة
-                initial={isIntroPhase ? { opacity: 0 } : { opacity: 0, y: 200, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={isIntroPhase ? { opacity: 0 } : { opacity: 0, y: -200, filter: "blur(8px)" }}
-                transition={{ duration: isIntroPhase ? 0.05 : 0.3, ease: "easeInOut" }}
-                className="relative z-10 flex flex-col items-center text-center h-full justify-center"
-              >
-                <div className="w-32 h-32 mb-8 relative flex items-center justify-center bg-black/40 rounded-2xl border border-white/10 shadow-inner">
-                  <motion.img
-                    src={activeSkill.icon}
-                    alt={activeSkill.name}
-                    initial={{ scale: 0.5, rotate: -10 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]"
-                  />
-                </div>
+            <AnimatePresence mode="wait">
+              {activeSkill && (
+                <motion.div
+                  key={activeSkill.name}
+                  initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
+                  transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="relative z-10 flex flex-col h-full"
+                >
+                  <div className="w-16 h-16 lg:w-24 lg:h-24 mb-4 lg:mb-8 relative flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 shadow-inner group-hover:bg-white/10 transition-colors duration-500">
+                    <motion.img
+                      src={activeSkill.icon}
+                      alt={activeSkill.name}
+                      initial={{ scale: 0.8, rotate: -5 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                      className="w-10 h-10 lg:w-14 lg:h-14 object-contain drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]"
+                    />
+                  </div>
 
-                <h3 className="text-3xl font-bold text-white mb-3">
-                  {activeSkill.name}
-                </h3>
-                
-                <div className="h-[2px] w-16 bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent mb-5 opacity-50"></div>
-                
-                <p className="text-gray-300 leading-relaxed text-sm md:text-base px-4">
-                  {activeSkill.info}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <h3 className="text-2xl lg:text-4xl font-extrabold text-white tracking-tight mb-2 lg:mb-4">
+                    {activeSkill.name}
+                  </h3>
+                  
+                  <div className="flex items-center gap-2 w-full mb-3 lg:mb-6 opacity-80">
+                    <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-teal-400"></div>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-teal-500/50 to-transparent"></div>
+                  </div>
+                  
+                  <p className="text-gray-400 leading-relaxed text-sm lg:text-lg font-light line-clamp-3 lg:line-clamp-none">
+                    {activeSkill.info}
+                  </p>
+
+                  <div className="mt-auto pt-4 lg:pt-8 flex items-center justify-between text-[10px] lg:text-xs font-mono text-gray-500 uppercase tracking-widest">
+                    <span>{String(activeIndex + 1).padStart(2, '0')}</span>
+                    <span>Active Module</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
       </div>
