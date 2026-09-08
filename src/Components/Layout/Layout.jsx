@@ -2,7 +2,6 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Navbar from '../Navbar/Navbar'
 import LightRays from '../LightRays';
-import Footer from '../Footer/Footer';
 
 function Layout() {
     console.log("Layout rendered");
@@ -26,8 +25,7 @@ function Layout() {
     <div>
         <Navbar/>
       <div className=""><Outlet/>
-        </div>  
-        <Footer/>
+        </div>
     </div></>
   )
 }

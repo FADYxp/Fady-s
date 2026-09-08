@@ -44,7 +44,7 @@ const Contact = () => {
     <>
       <Toaster position="top-center" />
 
-      <section className="relative flex items-center py-12 md:py-20 justify-center overflow-hidden">
+      <section className="relative flex min-h-0 flex-1 items-center py-12 md:py-20 justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#13002b00]  to-black opacity-90 z-0" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-10 w-[90%] max-w-5xl">

@@ -5,7 +5,9 @@ import avatar from "./../../assets/photo.jpg";
 import iconn from "./../../assets/code3.png";
 import TextType from "../TextType";
 import Contact from "../Contact/Contact";
+import Footer from "../Footer/Footer";
 import PageLoader from "../PageLoader/PageLoader";
+import StackSection from "../StackSection";
 const Projects = React.lazy(() => import("../Projects/Projects"));
 const AboutSection = React.lazy(() => import("../About/AboutBrief"));
 const Skills = React.lazy(() => import("../Skills/Skills"));
@@ -21,9 +23,13 @@ function Home() {
   return (
     <PageLoader>
       <>
-        {/* Hero Section */}
-
-        <section className="overflow-hidden pt-10 md:p-0 m-auto h-screen flex items-center justify-center text-white">
+        <StackSection
+          sections={[
+            {
+              id: "home",
+              name: "Hero",
+              content: (
+                <section className="overflow-hidden pt-10 md:p-0 m-auto h-screen flex items-center justify-center text-white">
           {/* Content */}
           <div className="flex flex-col md:flex-row items-center w-[100%] gap-7 z-10">
             {/* ✅ الصورة على الشمال (تفضل فوق في الموبايل) */}
@@ -119,33 +125,61 @@ function Home() {
               </motion.div>
             </motion.div>
           </div>
-        </section>
-
-        {/* Scroll Content Section */}
-
-        <div id="about" className="  ">
-          <Suspense fallback={<div className="h-screen" />}>
-            <AboutSection />
-          </Suspense>
- 
-        </div>
-
-        <div id="projects">
-          <Suspense fallback={<div className="h-screen" />}>
-            <Projects />
-          </Suspense>
-        </div>
-        <div id="skills" className="">
-          <Suspense fallback={<div className="h-screen" />}>
-            <Skills />
-          </Suspense>
-        </div>
-        <Suspense fallback={<div className="h-96" />}>
-          <Services />
-        </Suspense>
-        <div id="contact" className="">
-          <Contact />
-        </div>
+                </section>
+              ),
+            },
+            {
+              id: "about",
+              name: "About",
+              content: (
+                <Suspense fallback={<div className="h-screen" />}>
+                  <AboutSection />
+                </Suspense>
+              ),
+            },
+            {
+              id: "projects",
+              name: "Projects",
+              content: (
+                <Suspense fallback={<div className="h-screen" />}>
+                  <Projects />
+                </Suspense>
+              ),
+            },
+            {
+              id: "skills",
+              name: "Skills",
+              content: (
+                <Suspense fallback={<div className="h-screen" />}>
+                  <Skills />
+                </Suspense>
+              ),
+            },
+            {
+              id: "services",
+              name: "Expertise",
+              content: (
+                <Suspense fallback={<div className="h-screen" />}>
+                  <Services />
+                </Suspense>
+              ),
+            },
+            {
+              id: "contact",
+              name: "Contact",
+              content: (
+                <div className="relative flex min-h-screen flex-col">
+                  <div className="flex flex-1 flex-col">
+                    <Contact />
+                  </div>
+                  <div className="relative z-20 shrink-0">
+                    <Footer />
+                  </div>
+                </div>
+              ),
+            },
+          ]}
+        />
       </>
     </PageLoader>
   );

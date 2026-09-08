@@ -3,18 +3,9 @@ import { GithubIcon2, LinkedinIcon2, EnvelopeIcon, WhatsappIcon, MapMarkerIcon, 
 
 const Footer = () => {
   return (
-    <motion.footer
-            initial={{ opacity: 1, y: 0 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-    className="w-full py-8   text-white text-center backdrop-blur-[5px] bg-gradient-to-b from-[#000000a6] via-[#18021ca0] to-[#1a003861] ">
+    <motion.footer className="footer-liquid relative w-full py-8 text-white text-center backdrop-blur-[5px] bg-gradient-to-b from-[#000000a6] via-[#18021ca0] to-[#1a003861]">
         
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col md:flex-row justify-center items-center gap-12 w-[90%] mx-auto"
-      >
+      <motion.div className="footer-liquid-content relative z-10 flex flex-col md:flex-row justify-center items-center gap-12 w-[90%] mx-auto">
         {/* Left side - Contact Info */}
         <div className="flex flex-col items-center md:items-start gap-2 text-gray-400 text-sm">
           <div className="flex items-center gap-2">

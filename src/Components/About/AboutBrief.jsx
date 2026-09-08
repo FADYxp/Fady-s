@@ -63,7 +63,7 @@ export default function AboutSection() {
     <section
       ref={sectionRef}
       onMouseMove={handleMouseMove}
-      className="relative flex items-center justify-center overflow-hidden min-h-[90vh] w-full max-w-6xl m-auto cursor-crosshair rounded-[3rem]"
+      className="relative flex items-center justify-center overflow-hidden min-h-[90vh] w-full m-auto cursor-crosshair rounded-[3rem]"
     >
       {/* السطح الشبكي للخلفية (Grid) */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] z-0"></div>
@@ -82,7 +82,7 @@ export default function AboutSection() {
       {/* The Premium Glass Card */}
       <div 
         ref={contentRef}
-        className="relative z-10 w-full max-w-5xl mx-auto bg-black/20 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-20 shadow-[0_20px_60px_rgba(0,0,0,0.6)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
+        className="relative z-10 w-full max-w-5xl mx-auto bg-black/20 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-20 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.1)]"
       >
         <div className="flex flex-col items-center text-center">
           
