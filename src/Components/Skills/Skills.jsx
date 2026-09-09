@@ -3,6 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import skillsData from "./skillsData";
 import SectionHeader from './../Header/Header';
 
+const reveal = {
+  hidden: { opacity: 0, y: 28 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: "easeOut" },
+  },
+};
+
 const Skills = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -49,10 +58,13 @@ const Skills = () => {
         {/* العمود الأيسر: المهارات */}
         <div className="flex-1 w-full flex flex-col justify-center ">
           <div className="mb-6 lg:mb-12 text-center lg:text-left">
-            <SectionHeader 
-              title="Tech Stack"  
-              subtitle="A curated selection of the technologies I use to build scalable applications."
-            />
+            <motion.div variants={reveal} className="mb-16 flex flex-col justify-between gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end">
+              <div>
+              <p className="mb-5 font-mono text-xs uppercase tracking-[0.35em] text-teal-300">02 / Toolkit</p>
+              <h2 className="max-w-xl text-5xl font-semibold leading-none tracking-[-0.06em] md:text-7xl">Tools for turning ideas <span className="text-white/35">into motion.</span></h2>
+              </div>
+              <p className="max-w-xs text-sm leading-6 text-white/40">A practical stack chosen for speed, maintainability, and interfaces that stay out of the user’s way.</p>
+            </motion.div>
           </div>
 
           {/* حاوية المهارات والسهم */}
