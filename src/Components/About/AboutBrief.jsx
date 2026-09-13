@@ -4,167 +4,161 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/*
+  Fonts used here (add once to your global CSS, ABOVE any other rule):
+  @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap');
+*/
+
+const FACTS = [
+  { label: 'Location', value: 'Alexandria, Egypt' },
+  { label: 'Stack', value: 'Node.js · React · Next.js' },
+  { label: 'Learning', value: 'ASP.NET Core' },
+  { label: 'Role', value: 'Full-Stack Dev · Scrum Master' },
+  { label: 'On the job since', value: '2+ years' },
+];
+
+const SERIF = { fontFamily: "'Spectral', Georgia, serif" };
+const MONO = { fontFamily: "'Space Mono', 'Courier New', monospace" };
+
 export default function AboutSection() {
   const sectionRef = useRef(null);
-  const glowRef = useRef(null);
-  const contentRef = useRef(null);
-  
-  const xTo = useRef(null);
-  const yTo = useRef(null);
+  const stampRef = useRef(null);
+  const bodyRef = useRef(null);
 
   useEffect(() => {
-    xTo.current = gsap.quickTo(glowRef.current, "x", { duration: 0.4, ease: "power3" });
-    yTo.current = gsap.quickTo(glowRef.current, "y", { duration: 0.4, ease: "power3" });
-
     const ctx = gsap.context(() => {
-      gsap.from(contentRef.current, {
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' },
-        y: 60,
-        scale: 0.98,
-        opacity: 0,
-        duration: 1.4,
-        ease: 'expo.out',
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
+        defaults: { ease: 'power3.out', duration: 1 },
       });
 
-      gsap.from('.stagger-el', {
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
-        y: 30,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.1,
-        ease: 'power3.out',
-      });
+      tl.from(bodyRef.current, { y: 28, opacity: 0 })
+        .from(stampRef.current, { scale: 0.6, opacity: 0, rotate: -24, duration: 0.6, ease: 'back.out(2)' }, '-=0.5');
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  const handleMouseMove = (e) => {
-    if (!sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    xTo.current(x - 200); 
-    yTo.current(y - 200);
-  };
-
   const handleSmoothScroll = (event, id) => {
     event.preventDefault();
     const element = document.getElementById(id);
     if (!element) return;
-
-    const yOffset = -90;
-    const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+    const sectionIndex = ['home', 'about', 'projects', 'skills', 'services', 'contact'].indexOf(id);
+    if (sectionIndex < 0) return;
+    window.scrollTo({ top: sectionIndex * 1.15 * window.innerHeight, behavior: 'smooth' });
   };
 
   return (
     <section
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      className="relative flex items-center justify-center overflow-hidden min-h-[90vh] w-full m-auto cursor-crosshair rounded-[3rem]"
+      className="relative h-full w-full flex items-center justify-center px-6 "
     >
-      {/* السطح الشبكي للخلفية (Grid) */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px] z-0"></div>
-
-      {/* The Tracking Glow */}
-      <div 
-        ref={glowRef}
-        className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-teal-500/40 via-emerald-500/20 to-purple-600/40 blur-[100px] pointer-events-none z-0 mix-blend-screen"
-        style={{ transform: 'translate(-100vw, -100vh)' }} 
-      ></div>
-
-      {/* Static Ambient Background Lights */}
-      <div className="absolute top-10 right-10 w-[500px] h-[500px] bg-purple-800/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
-      <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-teal-800/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
-
-      {/* The Premium Glass Card */}
-      <div 
-        ref={contentRef}
-        className="relative z-10 w-full max-w-5xl mx-auto bg-black/20 border border-white/5 backdrop-blur-3xl rounded-[3rem] p-10 md:p-20 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.1)]"
+      <div
+        ref={bodyRef}
+        className="relative z-10 w-full max-w-3xl bg-[#F5EEDF] p-8 md:p-14 text-[#2A2018] overflow-hidden"
+        style={{
+          /* حواف متقطعة وعشوائية باستخدام polygon للـ clip-path */
+          clipPath: "polygon(0% 1%, 2% 0%, 98% 1%, 100% 3%, 99% 25%, 100% 50%, 98% 75%, 100% 97%, 97% 100%, 75% 99%, 50% 100%, 25% 98%, 3% 100%, 0% 97%, 1% 70%, 0% 40%, 2% 15%)",
+          /* تأثير الحرق والأطراف الداكنة للورقة القديمة */
+          boxShadow: "inset 0 0 65px rgba(50, 25, 10, 0.4), 0 15px 35px rgba(0, 0, 0, 0.5)",
+          border: "1px solid #5c3f20"
+        }}
       >
-        <div className="flex flex-col items-center text-center">
-          
-          {/* Top Badge */}
-          <div className="stagger-el inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-teal-500/20 bg-teal-500/5 mb-10 hover:bg-teal-500/10 transition-colors backdrop-blur-md">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-60"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500 shadow-[0_0_8px_#2dd4bf]"></span>
-            </span>
-            <span className="text-[11px] font-mono text-teal-100 tracking-[0.2em] uppercase font-semibold">Available for Hire</span>
-          </div>
+        {/* Burned / Scorched Organic Spots (حطيت بقع حروق واقعية متوزعة في الأركان والأطراف جوه الورقة) */}
+        <div className="absolute -top-6 -left-6 w-36 h-36 bg-[#2a1306] opacity-75 blur-2xl pointer-events-none z-10" />
+        <div className="absolute -bottom-8 -right-6 w-44 h-40 bg-[#1c0b03] opacity-80 blur-3xl pointer-events-none z-10" />
+        <div className="absolute top-1/3 -right-10 w-28 h-48 bg-[#381a07] opacity-65 blur-2xl pointer-events-none z-10" />
+        <div className="absolute -bottom-6 left-1/3 w-36 h-24 bg-[#2e1505] opacity-70 blur-2xl pointer-events-none z-10" />
+        <div className="absolute top-12 -left-8 w-28 h-28 bg-[#220e03] opacity-60 blur-xl pointer-events-none z-10" />
 
-          {/* Main Title */}
-          <h2 className="stagger-el text-6xl md:text-8xl font-black text-white tracking-tighter leading-[1.05] mb-8">
-            Hi, I'm <br className="md:hidden" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-200 to-teal-400 bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_30px_rgba(45,212,191,0.2)]">
-              Fady Refaat
-            </span>
-          </h2>
+        {/* Paper Creases & Folds (خطوط تكسيرات وطيات الورق القديم) */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 z-10"
+          style={{
+            backgroundImage: `
+              linear-gradient(125deg, transparent 35%, rgba(55, 30, 10, 0.45) 36%, transparent 37%),
+              linear-gradient(35deg, transparent 58%, rgba(55, 30, 10, 0.4) 59%, transparent 60%),
+              linear-gradient(85deg, transparent 22%, rgba(45, 22, 8, 0.35) 23%, transparent 24%)
+            `,
+            mixBlendMode: 'multiply'
+          }}
+        />
 
-          {/* Classic Serif Quote */}
-          <div className="stagger-el relative mb-12 px-6">
-            <span className="absolute -top-6 -left-2 text-6xl text-white/10 font-serif">"</span>
-            <h3 className="text-xl md:text-3xl text-gray-300 font-serif italic tracking-wide leading-relaxed">
-              Turning complex logic into elegant art,<br className="hidden md:block" /> and teams into orchestras.
-            </h3>
-            <span className="absolute -bottom-10 -right-2 text-6xl text-white/10 font-serif rotate-180">"</span>
-          </div>
+        {/* Burned/Scorched edges overlay layer */}
+        <div className="absolute inset-0 pointer-events-none border-[7px] border-[#2b1406]/65 opacity-90 z-10"
+          style={{
+            clipPath: "polygon(0% 1%, 2% 0%, 98% 1%, 100% 3%, 99% 25%, 100% 50%, 98% 75%, 100% 97%, 97% 100%, 75% 99%, 50% 100%, 25% 98%, 3% 100%, 0% 97%, 1% 70%, 0% 40%, 2% 15%)",
+            filter: "blur(3px)"
+          }}
+        />
 
-          {/* Sweetened Description مع دمج الباك إند والـ Scrum */}
-          <div className="stagger-el space-y-6 max-w-3xl text-gray-400 text-lg md:text-xl leading-relaxed mb-14 font-light">
-            <p>
-              I’m a Frontend Developer dedicated to building interfaces that don't just function, but feel truly <span className="text-white font-black tracking-widest drop-shadow-[0_0_12px_rgba(255,255,255,0.7)] mx-1">ALiVE</span>. But great digital experiences go beyond the UI.
-            </p>
-            <p className="text-base md:text-lg leading-loose">
-              Alongside crafting clean, scalable code, I bridge the gap between design and architecture—stepping in seamlessly to handle <span className="inline-flex items-center px-2 py-0.5 rounded text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 text-sm mx-1">Backend logic</span> with Node.js, Express, and databases when needed. Plus, as a <span className="inline-flex items-center px-3 py-1 rounded-md bg-white/5 border border-white/10 text-white font-medium text-sm mx-1">Scrum Master</span>, I orchestrate teamwork through <span className="inline-flex items-center px-2 py-0.5 rounded text-teal-300 bg-teal-500/10 border border-teal-500/20 text-sm mx-1">Agile</span>, keeping sprints locked on <span className="inline-flex items-center px-2 py-0.5 rounded text-blue-300 bg-blue-500/10 border border-blue-500/20 text-sm mx-1">Jira</span> and communication sharp on <span className="inline-flex items-center px-2 py-0.5 rounded text-purple-300 bg-purple-500/10 border border-purple-500/20 text-sm mx-1">Slack</span>.
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="stagger-el flex flex-col sm:flex-row items-center justify-center gap-4 w-full md:w-auto">
-            <a
-              href="#projects"
-              onClick={(event) => handleSmoothScroll(event, 'projects')}
-              className="w-full sm:w-auto relative group px-8 py-4 rounded-xl bg-teal-500 text-black font-extrabold text-sm tracking-widest uppercase overflow-hidden transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(45,212,191,0.3)] hover:shadow-[0_0_30px_rgba(45,212,191,0.5)]"
-            >
-              <span className="relative z-10">Explore Work</span>
-              <div className="absolute inset-0 h-full w-full bg-teal-400 scale-x-0 origin-right group-hover:scale-x-100 transition-transform duration-500 ease-out z-0"></div>
-            </a>
-
-            <a
-              href="#contact"
-              onClick={(event) => handleSmoothScroll(event, 'contact')}
-              className="w-full sm:w-auto group px-8 py-4 rounded-xl text-white font-medium text-sm tracking-widest uppercase border border-white/10 hover:border-teal-500/50 hover:bg-teal-500/5 transition-all backdrop-blur-sm"
-            >
-              Let's Connect <span className="inline-block transition-transform group-hover:translate-x-2 text-teal-500 ml-2">→</span>
-            </a>
-          </div>
-
+        {/* Ink stamp */}
+        <div
+          ref={stampRef}
+          className="absolute -top-3 right-4 md:top-8 md:right-10 w-24 h-24 rounded-full border-[3px] border-[#7A2E2E] flex items-center justify-center rotate-[-10deg] opacity-90 z-30"
+        >
+          <span
+            className="text-[10px] text-[#7A2E2E] font-bold tracking-[0.15em] text-center leading-tight"
+            style={MONO}
+        >
+            OPEN FOR
+            <br />WORK
+          </span>
         </div>
 
-        {/* Bottom Details */}
-        <div className="stagger-el mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-black/40 border border-white/5 backdrop-blur-md">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-gray-300 text-sm font-mono">Alexandria, Egypt</span>
-          </div>
-          
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-xs font-mono">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500 uppercase tracking-widest">Stack</span>
-              <span className="px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5 hover:text-teal-400 transition-colors">React / Next</span>
-              <span className="px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5 hover:text-emerald-400 transition-colors">Node / Express</span>
-            </div>
-            <div className="hidden md:block w-px h-6 bg-white/10"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500 uppercase tracking-widest">Workflow</span>
-              <span className="px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5 hover:text-purple-400 transition-colors">Scrum Master</span>
-            </div>
-          </div>
+        {/* File header */}
+        <p style={MONO} className="text-[11px] text-[#8C7851] tracking-widest mb-8 relative z-20">
+          FILE NO. 002 — ENGINEER'S RECORD
+        </p>
+
+        <h2 style={SERIF} className="text-4xl md:text-6xl font-semibold text-[#2A2018] leading-[1.1] mb-6 relative z-20">
+          Hi, I'm Fady Refaat
+        </h2>
+
+        <p style={SERIF} className="italic text-lg md:text-xl text-[#5C4F3D] leading-relaxed mb-8 max-w-lg relative z-20">
+          Turning complex logic into elegant interfaces, and scattered tasks into shipped sprints.
+        </p>
+
+        <div style={{ fontFamily: "Georgia, serif" }} className="space-y-5 text-[#443A2C] text-base leading-relaxed max-w-xl mb-10 relative z-20">
+          <p>
+            I build interfaces that hold up under real use, not just in a demo. Most of my time
+            lives in React and Next.js, but I don't stop at the UI layer — when a feature needs
+            an API, a database, or an auth flow, I build that too with Node.js and Express.
+          </p>
+          <p>
+            I'm currently deepening that range with ASP.NET Core, so I can move into larger
+            backend systems with the same confidence I have on the frontend. On team projects,
+            I've also run point as Scrum Master, keeping sprints honest and communication clear.
+          </p>
         </div>
 
+        {/* Ledger-style facts */}
+        <dl className="border-t border-b border-[#8C7851]/40 divide-y divide-[#8C7851]/25 mb-10 relative z-20">
+          {FACTS.map(({ label, value }) => (
+            <div key={label} className="flex items-baseline justify-between py-2.5">
+              <dt style={MONO} className="text-[11px] text-[#8C7851] tracking-wider">{label}</dt>
+              <dd style={SERIF} className="text-sm text-[#2A2018] text-right">{value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="flex flex-col sm:flex-row gap-3 relative z-20">
+          <a
+            href="#projects"
+            onClick={(event) => handleSmoothScroll(event, 'projects')}
+            style={MONO}
+            className="px-6 py-3 rounded-sm bg-[#7A2E2E] text-[#F5EEDF] text-sm text-center tracking-wide hover:bg-[#8C3A3A] transition-colors"
+          >
+            See the work
+          </a>
+          <a
+            href="#contact"
+            onClick={(event) => handleSmoothScroll(event, 'contact')}
+            style={MONO}
+            className="px-6 py-3 rounded-sm border border-[#2A2018]/30 text-[#2A2018] text-sm text-center tracking-wide hover:bg-[#2A2018]/5 transition-colors"
+          >
+            Get in touch
+          </a>
+        </div>
       </div>
     </section>
   );

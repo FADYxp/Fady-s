@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { cloneElement, isValidElement, useEffect, useRef, useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 const SCROLL_PER_SECTION = 1.15;
 const SCROLL_EASE = 0.017;
@@ -26,6 +27,8 @@ function LayerContent({ children }) {
 }
 
 export default function StackSection({ sections }) {
+	const { theme } = useTheme();
+	const isRoyal = theme === "old";
 	const layerRefs = useRef([]);
 	const backgroundRefs = useRef([]);
 	const ledgerRefs = useRef([]);
@@ -33,8 +36,10 @@ export default function StackSection({ sections }) {
 	const targetScroll = useRef(0);
 	const easedScroll = useRef(0);
 	const activeIndex = useRef(0);
+	const publishedActiveIndex = useRef(0);
 	const [ledgerCompact, setLedgerCompact] = useState(false);
 	const [ledgerHovered, setLedgerHovered] = useState(false);
+	const [activeSection, setActiveSection] = useState(0);
 
 	useEffect(() => {
 		if (sections.length < 2) return undefined;
@@ -116,6 +121,10 @@ export default function StackSection({ sections }) {
 				sections.length - 1,
 				Math.max(0, Math.round(progress)),
 			);
+			if (publishedActiveIndex.current !== activeIndex.current) {
+				publishedActiveIndex.current = activeIndex.current;
+				setActiveSection(activeIndex.current);
+			}
 
 			layerRefs.current.forEach((layer, index) => {
 				if (!layer) return;
@@ -214,14 +223,16 @@ export default function StackSection({ sections }) {
 								backgroundRefs.current[index] = background;
 							}}
 							aria-hidden="true"
-							className="pointer-events-none absolute inset-0 z-0 bg-black/10"
+							className="pointer-events-none absolute inset-0 z-0 "
 							style={{
 								backdropFilter: "blur(0px)",
 								WebkitBackdropFilter: "blur(0px)",
 							}}
 						/>
 						<LayerContent>
-							{section.content}
+							{section.id === "contact" && isValidElement(section.content)
+								? cloneElement(section.content, { isActive: activeSection === index })
+								: section.content}
 						</LayerContent>
 					</div>
 				))}
@@ -240,7 +251,7 @@ export default function StackSection({ sections }) {
 								type="button"
 								aria-label={`Go to ${section.name}`}
 								onClick={() => scrollToSection(index)}
-									className="ledger-button group flex min-h-5 origin-right items-center gap-2 text-right"
+									className={`ledger-button group flex min-h-5 origin-right items-center gap-2 text-right ${isRoyal ? "royal-ledger-button" : "modern-ledger-button"}`}
 									style={{
 										transform:
 											ledgerCompact && !ledgerHovered
@@ -256,7 +267,7 @@ export default function StackSection({ sections }) {
 									ref={(label) => {
 										ledgerLabelRefs.current[index] = label;
 									}}
-									className="text-[10px] font-mono uppercase tracking-[0.2em] text-white transition-opacity duration-300 group-hover:opacity-100"
+									className={`text-[10px] font-mono uppercase tracking-[0.2em] transition-opacity duration-300 group-hover:opacity-100 ${isRoyal ? "text-[#F3E5AB]" : "text-white"}`}
 									style={{ opacity: index === 0 ? "1" : "0.5" }}
 								>
 									{section.name}
@@ -265,7 +276,7 @@ export default function StackSection({ sections }) {
 									ref={(item) => {
 										ledgerRefs.current[index] = item;
 									}}
-									className="block h-px bg-teal-300 transition-[width,opacity] duration-300"
+									className={`block h-px transition-[width,opacity] duration-300 ${isRoyal ? "bg-[#D4AF37]" : "bg-teal-300"}`}
 									style={{ width: index === 0 ? "2.75rem" : "1rem" }}
 								/>
 							</button>
