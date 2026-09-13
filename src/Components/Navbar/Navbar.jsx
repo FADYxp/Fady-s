@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import GlitchText from "../GlitchText";
+import ThemeToggle from "./ThemeToggle";
 
 const SECTION_TAGLINES = [
   "Think. Build. Impress.",
@@ -38,7 +39,7 @@ export default function Navbar() {
       }
 
       setNavVisible(true);
-      hideTimer = window.setTimeout(() => setNavVisible(false), 2600);
+      hideTimer = window.setTimeout(() => setNavVisible(false), 1600);
     };
 
     handleScroll();
@@ -51,7 +52,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`navbar-liquid fixed top-0 left-0 right-0 z-50 transition-all duration-[1400ms] ${
+      className={`navbar-liquid fixed top-0 left-0 right-0 z-50 transition-all duration-[1000ms] ${
         scrolled ? "is-scrolled shadow-md" : ""
       } ${navVisible ? "navbar-visible" : "navbar-hidden"}`}
     >
@@ -93,6 +94,8 @@ export default function Navbar() {
               </motion.span>
             )}
           </AnimatePresence>
+
+          <ThemeToggle />
 
         </div>
       </nav>

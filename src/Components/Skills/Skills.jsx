@@ -1,186 +1,310 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import skillsData from "./skillsData";
 import SectionHeader from './../Header/Header';
 
-const reveal = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: "easeOut" },
-  },
+// Cute rounded robot. `label` (optional) is drawn on its belly —
+// used for the large, expanded version only.
+const DancingFigure = ({ width = 100, height = 130, label }) => (
+  <motion.svg
+    width={width}
+    height={height}
+    viewBox="0 0 100 130"
+    fill="none"
+    className="pointer-events-none drop-shadow-[0_0_16px_rgba(45,212,191,0.45)]"
+    animate={{ y: [0, -6, 0] }}
+    transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+  >
+    <motion.line
+      x1="50" y1="18" x2="50" y2="6"
+      stroke="#5eead4" strokeWidth="3" strokeLinecap="round"
+      style={{ transformOrigin: "50px 18px" }}
+      animate={{ rotate: [-12, 12, -12] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.circle
+      cx="50" cy="6" r="4" fill="#5eead4"
+      animate={{ cy: [6, 4, 6] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <rect x="30" y="16" width="40" height="32" rx="14" fill="#134e4a" stroke="#5eead4" strokeWidth="2.5" />
+    <circle cx="41" cy="32" r="4" fill="#5eead4" />
+    <circle cx="59" cy="32" r="4" fill="#5eead4" />
+    <rect x="26" y="52" width="48" height="40" rx="16" fill="#0f766e" stroke="#5eead4" strokeWidth="2.5" />
+    <rect x="40" y="64" width="20" height="12" rx="6" fill="#5eead4" opacity="0.5" />
+    {label && (
+      <text
+        x="50" y="76" textAnchor="middle"
+        fontFamily="'Space Mono', monospace" fontSize="6.5" fontWeight="700"
+        fill="#022c22" letterSpacing="0.3"
+      >
+        {label}
+      </text>
+    )}
+    <motion.rect
+      x="10" y="58" width="10" height="30" rx="5"
+      style={{ transformOrigin: "15px 60px" }}
+      fill="#0f766e" stroke="#5eead4" strokeWidth="2"
+      animate={{ rotate: [10, -35, 10] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.rect
+      x="80" y="58" width="10" height="30" rx="5"
+      style={{ transformOrigin: "85px 60px" }}
+      fill="#0f766e" stroke="#5eead4" strokeWidth="2"
+      animate={{ rotate: [-10, 35, -10] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: 0.1 }}
+    />
+    <motion.rect
+      x="33" y="90" width="12" height="26" rx="6"
+      style={{ transformOrigin: "39px 90px" }}
+      fill="#0f766e" stroke="#5eead4" strokeWidth="2"
+      animate={{ rotate: [-14, 14, -14] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.rect
+      x="55" y="90" width="12" height="26" rx="6"
+      style={{ transformOrigin: "61px 90px" }}
+      fill="#0f766e" stroke="#5eead4" strokeWidth="2"
+      animate={{ rotate: [14, -14, 14] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: 0.1 }}
+    />
+  </motion.svg>
+);
+
+// A small curved arrow that bounces toward the robot, hinting it's clickable.
+const PointerHint = () => (
+  <motion.div
+    className="absolute -top-2 left-[62%] flex flex-col items-center pointer-events-none z-20"
+    animate={{ y: [0, 6, 0] }}
+    transition={{ duration: 1.3, repeat: Infinity, ease: "easeInOut" }}
+  >
+    <span className="text-[10px] font-mono text-cyan-300 bg-cyan-400/10 border border-cyan-400/30 rounded px-2 py-0.5 mb-1 whitespace-nowrap">
+      click me
+    </span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 4v13M12 17l-5-5M12 17l5-5" stroke="#5eead4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </motion.div>
+);
+
+// Angular, cut-corner clip path — the signature HUD panel silhouette.
+const HUD_CLIP = "polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)";
+
+// A thin bright line that sweeps down through a panel on a loop.
+const Scanline = () => (
+  <motion.div
+    className="absolute left-0 right-0 h-10 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent pointer-events-none"
+    animate={{ top: ["-10%", "110%"] }}
+    transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+  />
+);
+
+// Rotating radar rings, decorative, sitting behind the main content.
+const RadarRings = () => (
+  <>
+    <motion.div
+      className="absolute w-[520px] h-[520px] rounded-full border border-cyan-400/10"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+    />
+    <motion.div
+      className="absolute w-[380px] h-[380px] rounded-full border border-cyan-400/15 border-dashed"
+      animate={{ rotate: -360 }}
+      transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+    />
+  </>
+);
+
+// Letters fade/slide in one by one — the terminal "typing" feel.
+const typeContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.035 } },
 };
+const typeChar = {
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+};
+const TypedText = ({ text, className }) => (
+  <motion.h3 key={text} variants={typeContainer} initial="hidden" animate="visible" className={className}>
+    {text.split("").map((ch, i) => (
+      <motion.span key={i} variants={typeChar} className="inline-block">
+        {ch === " " ? "\u00A0" : ch}
+      </motion.span>
+    ))}
+  </motion.h3>
+);
 
 const Skills = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [showScrollHint, setShowScrollHint] = useState(true); // حالة ظهور سهم الإرشاد
-  const sectionRef = useRef(null);
-
+  const [bootLine, setBootLine] = useState("");
+  const [showAssistant, setShowAssistant] = useState(false);
   const activeSkill = skillsData[activeIndex] || null;
 
-  // Autoplay
   useEffect(() => {
-    if (isHovered || skillsData.length === 0) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % skillsData.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isHovered]);
+    if (!activeSkill) return;
+    setBootLine(`> initializing module :: ${activeSkill.name.toLowerCase().replace(/\s+/g, "_")}`);
+  }, [activeIndex, activeSkill]);
 
-  // دالة لمراقبة السكرول عشان نخفي السهم لو اليوزر وصل للآخر
-  const handleScroll = (e) => {
-    const { scrollLeft, scrollWidth, clientWidth } = e.target;
-    // لو المسافة المتبقية أقل من 15 بيكسل، اخفي السهم
-    if (scrollLeft + clientWidth >= scrollWidth - 15) {
-      setShowScrollHint(false);
-    } else {
-      setShowScrollHint(true);
-    }
-  };
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && setShowAssistant(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <section
-      ref={sectionRef}
       id="skills"
-      className="min-h-[100dvh] text-white py-8 lg:py-24 px-4 md:px-8 relative overflow-hidden flex items-center justify-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="min-h-[100dvh] text-cyan-50 py-8 lg:py-24 px-4 md:px-8 relative overflow-hidden flex items-center justify-center backdrop-blur-sm"
     >
-      {/* الخلفيات والإضاءات */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] z-0"></div>
-      <div className="absolute top-1/4 left-0 w-96 h-96 bg-teal-900/20 blur-[120px] rounded-full z-0 pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-purple-900/20 blur-[120px] rounded-full z-0 pointer-events-none"></div>
+      {/* Faint decorative layer only — no background color/fill */}
+      <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none opacity-60">
+        <RadarRings />
+      </div>
+      <div
+        className="absolute inset-0 z-0 opacity-[0.08] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(#5eead4 1px, transparent 1px), linear-gradient(90deg, #5eead4 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-16 items-center lg:items-stretch h-full">
-        
-        {/* العمود الأيسر: المهارات */}
-        <div className="flex-1 w-full flex flex-col justify-center ">
-          <div className="mb-6 lg:mb-12 text-center lg:text-left">
-            <motion.div variants={reveal} className="mb-16 flex flex-col justify-between gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end">
-              <div>
-              <p className="mb-5 font-mono text-xs uppercase tracking-[0.35em] text-teal-300">02 / Toolkit</p>
-              <h2 className="max-w-xl text-5xl font-semibold leading-none tracking-[-0.06em] md:text-7xl">Tools for turning ideas <span className="text-white/35">into motion.</span></h2>
-              </div>
-              <p className="max-w-xs text-sm leading-6 text-white/40">A practical stack chosen for speed, maintainability, and interfaces that stay out of the user’s way.</p>
-            </motion.div>
-          </div>
+      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col lg:flex-row gap-10 lg:gap-16 items-center lg:items-stretch h-full">
+        <div className="flex-1 w-full flex flex-col justify-center">
 
-          {/* حاوية المهارات والسهم */}
-          <div className="relative w-full">
-            
-            {/* Grid سحري: صفين للموبايل، وFlex Wrap للديسكتوب */}
-            <div 
-              onScroll={handleScroll}
-              className="grid grid-rows-2 grid-flow-col auto-cols-max lg:flex lg:flex-wrap lg:grid-rows-none overflow-x-auto lg:overflow-visible gap-3 lg:gap-4 pb-4 lg:pb-0 w-full snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-1"
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mb-10 lg:mb-14"
+          ><SectionHeader title={"Tech & Trick"} subtitle={"WooooOOooOooHoooooooooooO!!"} />
+       
+          </motion.div>
+
+          {/* HUD key grid — angular cut-corner buttons */}
+          <div className="relative pb-10">
+            <button
+              onMouseEnter={() => setShowAssistant(true)}
+              onClick={() => setShowAssistant(true)}
+              className="absolute left-1/2 bottom-0 -translate-x-1/2 z-0 cursor-pointer"
+              aria-label="Open AI assistant"
             >
+              <PointerHint />
+              <DancingFigure />
+            </button>
+            <div className="relative z-10 grid grid-cols-4 sm:grid-cols-5 gap-3 lg:gap-4 max-w-lg">
               {skillsData.map((skill, index) => {
                 const isActive = activeIndex === index;
-                
                 return (
                   <motion.button
                     key={skill.name}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
-                    onClick={() => setActiveIndex(index)}
                     onMouseEnter={() => setActiveIndex(index)}
-                    className={`snap-start shrink-0 group relative flex items-center gap-2 lg:gap-3 px-4 lg:px-5 py-2 lg:py-3 rounded-xl lg:rounded-2xl border transition-all duration-500 ease-out ${
+                    onFocus={() => setActiveIndex(index)}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.03 }}
+                    whileHover={{ y: -3 }}
+                    style={{ clipPath: HUD_CLIP }}
+                    className={`relative aspect-square flex flex-col items-center justify-center gap-1.5 border backdrop-blur-md overflow-hidden transition-colors duration-300 ${
                       isActive
-                        ? "border-teal-500/40 bg-teal-500/10 shadow-[0_0_20px_rgba(45,212,191,0.15)] scale-[1.02]"
-                        : "border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/5"
+                        ? "border-cyan-400 bg-cyan-400/10 shadow-[0_0_20px_rgba(34,211,238,0.35)]"
+                        : "border-cyan-400/15 bg-white/[0.02] hover:border-cyan-400/40"
                     }`}
                   >
-                    <img 
-                      src={skill.icon} 
-                      alt={skill.name} 
+                    {isActive && <Scanline />}
+                    <img
+                      src={skill.icon}
+                      alt={skill.name}
                       loading="lazy"
-                      className={`w-5 h-5 lg:w-6 lg:h-6 object-contain transition-all duration-500 ${
-                        isActive ? "scale-110 drop-shadow-[0_0_10px_rgba(45,212,191,0.5)] grayscale-0" : "grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100"
-                      }`} 
+                      className={`relative z-10 w-6 h-6 object-contain transition-all duration-300 ${
+                        isActive ? "grayscale-0 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" : "grayscale opacity-40"
+                      }`}
                     />
-                    <span className={`font-medium tracking-wide text-xs lg:text-sm transition-colors duration-300 whitespace-nowrap ${
-                      isActive ? "text-teal-300" : "text-gray-400 group-hover:text-gray-200"
-                    }`}>
-                      {skill.name}
+                    <span className={`relative z-10 text-[9px] font-mono tracking-wide ${isActive ? "text-cyan-300" : "text-cyan-100/30"}`}>
+                      {String(index + 1).padStart(2, "0")}
                     </span>
                   </motion.button>
                 );
               })}
             </div>
-
-            {/* مؤشر السحب (السهم) - بيظهر في الموبايل بس ويختفي لما توصل للآخر */}
-            <AnimatePresence>
-              {showScrollHint && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  // تدريج لوني (Gradient) عشان الكروت تدوب تحته بشياكة
-                  className="absolute right-0 top-0 bottom-4 w-20 bg-gradient-to-l from-[#09090b] via-[#09090b]/60 to-transparent pointer-events-none flex items-center justify-end pr-1 lg:hidden"
-                >
-                  <motion.div
-                    animate={{ x: [0, 5, 0] }} // حركة نبض يمين وشمال
-                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                  >
-                    {/* أيقونة سهم أنيقة بـ SVG */}
-                    <svg className="w-6 h-6 text-teal-400 opacity-80 drop-shadow-[0_0_8px_rgba(45,212,191,0.6)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
           </div>
         </div>
 
-        {/* الكارت الزجاجي */}
-        <div className="w-full lg:w-[480px] shrink-0 min-h-[280px] lg:min-h-[400px] flex items-center relative group perspective-1000 mt-2 lg:mt-0">
-          <div className="w-full h-full relative z-10 bg-black/40 border border-white/10 backdrop-blur-2xl rounded-3xl lg:rounded-[2rem] p-6 lg:p-10 shadow-2xl transition-transform duration-700 hover:border-teal-500/30 overflow-hidden flex flex-col justify-center">
-            
-            <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-teal-500/20 to-purple-600/20 blur-[80px] rounded-full pointer-events-none transition-opacity duration-500 opacity-50 group-hover:opacity-100"></div>
+        {/* Main hologram readout */}
+        <div className="w-full lg:w-[480px] shrink-0 min-h-[300px] lg:min-h-[420px] flex items-center relative mt-2 lg:mt-0">
+          <div
+            style={{ clipPath: HUD_CLIP }}
+            className="w-full h-full relative z-10 bg-cyan-400/[0.04] border border-cyan-400/25 backdrop-blur-2xl p-6 lg:p-10 overflow-hidden flex flex-col justify-center"
+          >
+            <Scanline />
+
+            {/* HUD corner ticks */}
+            <span className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-cyan-400/70" />
+            <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-cyan-400/70" />
 
             <AnimatePresence mode="wait">
               {activeSkill && (
                 <motion.div
                   key={activeSkill.name}
-                  initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
-                  transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                  initial={{ opacity: 0, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(6px)" }}
+                  transition={{ duration: 0.3 }}
                   className="relative z-10 flex flex-col h-full"
                 >
-                  <div className="w-16 h-16 lg:w-24 lg:h-24 mb-4 lg:mb-8 relative flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 shadow-inner group-hover:bg-white/10 transition-colors duration-500">
+                  <p className="font-mono text-[10px] text-cyan-400/60 mb-4 tracking-wide">
+                    {bootLine}
+                  </p>
+
+                  <div
+                    style={{ clipPath: HUD_CLIP }}
+                    className="w-16 h-16 lg:w-24 lg:h-24 mb-4 lg:mb-8 relative flex items-center justify-center bg-cyan-400/5 border border-cyan-400/25"
+                  >
                     <motion.img
                       src={activeSkill.icon}
                       alt={activeSkill.name}
-                      initial={{ scale: 0.8, rotate: -5 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                      className="w-10 h-10 lg:w-14 lg:h-14 object-contain drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]"
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 220, damping: 18 }}
+                      className="w-10 h-10 lg:w-14 lg:h-14 object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]"
                     />
                   </div>
 
-                  <h3 className="text-2xl lg:text-4xl font-extrabold text-white tracking-tight mb-2 lg:mb-4">
-                    {activeSkill.name}
-                  </h3>
-                  
-                  <div className="flex items-center gap-2 w-full mb-3 lg:mb-6 opacity-80">
-                    <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-teal-400"></div>
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-teal-500/50 to-transparent"></div>
+                  <TypedText
+                    text={activeSkill.name}
+                    className="text-2xl lg:text-4xl font-bold text-white tracking-tight mb-3 lg:mb-4 font-mono"
+                  />
+
+                  <div className="flex items-center gap-1 w-full mb-3 lg:mb-6">
+                    {Array.from({ length: 16 }).map((_, i) => (
+                      <motion.span
+                        key={i}
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ delay: i * 0.02, duration: 0.2 }}
+                        className={`h-3 w-1 rounded-full origin-bottom ${i < 11 ? "bg-cyan-400/80" : "bg-white/10"}`}
+                      />
+                    ))}
                   </div>
-                  
-                  <p className="text-gray-400 leading-relaxed text-sm lg:text-lg font-light line-clamp-3 lg:line-clamp-none">
+
+                  <p className="text-cyan-100/60 leading-relaxed text-sm lg:text-lg font-light line-clamp-3 lg:line-clamp-none">
                     {activeSkill.info}
                   </p>
 
-                  <div className="mt-auto pt-4 lg:pt-8 flex items-center justify-between text-[10px] lg:text-xs font-mono text-gray-500 uppercase tracking-widest">
-                    <span>{String(activeIndex + 1).padStart(2, '0')}</span>
-                    <span>Active Module</span>
+                  <div className="mt-auto pt-4 lg:pt-8 flex items-center justify-between text-[10px] lg:text-xs font-mono text-cyan-400/50 uppercase tracking-widest">
+                    <span>ID_{String(activeIndex + 1).padStart(3, '0')}</span>
+                    <span className="flex items-center gap-1.5">
+                      <motion.span
+                        className="w-1.5 h-1.5 rounded-full bg-cyan-400"
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                      LINKED
+                    </span>
                   </div>
                 </motion.div>
               )}
@@ -189,6 +313,32 @@ const Skills = () => {
         </div>
 
       </div>
+
+      {/* Full-screen assistant overlay */}
+      <AnimatePresence>
+        {showAssistant && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setShowAssistant(false)}
+            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center cursor-pointer"
+          >
+            <motion.div
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.4, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            >
+              <DancingFigure width={260} height={340} label="AI ASSISTANT" />
+            </motion.div>
+            <p className="mt-6 font-mono text-xs text-cyan-300/60 tracking-widest">
+              tap anywhere to close
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
